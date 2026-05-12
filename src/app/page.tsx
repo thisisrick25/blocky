@@ -4,15 +4,10 @@ import dynamic from "next/dynamic";
 import { AppSidebar } from "@/components/layout/AppSidebar";
 import { AiSidebar } from "@/components/ai/AiSidebar";
 import { SidebarInset } from "@/components/ui/sidebar";
-import { useState, useRef } from "react";
+import React, { useState, useRef } from "react";
 import { BlockNoteEditor } from "@blocknote/core";
-import { IconPicker } from "@/components/ui/icon-picker/IconPicker";
 import { SmilePlus, Image as ImageIcon, MessageSquare } from "lucide-react";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { EmojiPopover } from "@/components/ui/emoji-popover/EmojiPopover";
 
 const Editor = dynamic(() => import("@/components/Editor"), {
   ssr: false,
@@ -56,12 +51,12 @@ export default function Home() {
             {/* Action Buttons (visible on hover) */}
             <div className="flex items-center gap-4 mb-4 opacity-0 group-hover/page:opacity-100 transition-opacity duration-200">
               {!docEmoji && (
-                <IconPicker onChange={setDocEmoji}>
+                <EmojiPopover onEmojiSelect={setDocEmoji}>
                   <button className="flex items-center gap-1.5 text-sm text-[#37352f]/50 hover:text-[#37352f]/80 hover:bg-[#efefed] px-2 py-1 rounded-[4px] transition-colors outline-none cursor-pointer">
                     <SmilePlus className="w-4 h-4" />
                     <span>Add icon</span>
                   </button>
-                </IconPicker>
+                </EmojiPopover>
               )}
 
               <button className="flex items-center gap-1.5 text-sm text-[#37352f]/50 hover:text-[#37352f]/80 hover:bg-[#efefed] px-2 py-1 rounded-[4px] transition-colors outline-none cursor-pointer">
@@ -76,15 +71,14 @@ export default function Home() {
             </div>
             {/* Emoji Icon */}
             {docEmoji && (
-              <IconPicker
-                icon={docEmoji}
-                onChange={setDocEmoji}
+              <EmojiPopover
+                onEmojiSelect={setDocEmoji}
                 onRemove={() => setDocEmoji("")}
               >
                 <div className="text-[78px] leading-none mb-6 hover:bg-[#efefed] rounded-lg transition-colors p-2 -ml-2 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#37352f]/20 w-fit">
                   {docEmoji}
                 </div>
-              </IconPicker>
+              </EmojiPopover>
             )}
             <h1
               className="text-[40px] font-bold text-[#37352f] leading-tight outline-none empty:before:content-['Untitled'] empty:before:text-[#37352f]/20 cursor-text"
