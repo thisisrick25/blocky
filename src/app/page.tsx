@@ -75,9 +75,9 @@ export default function Home() {
                 onEmojiSelect={setDocEmoji}
                 onRemove={() => setDocEmoji("")}
               >
-                <div className="text-[78px] leading-none mb-6 hover:bg-[#efefed] rounded-lg transition-colors p-2 -ml-2 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#37352f]/20 w-fit">
+                <button className="text-[78px] leading-none mb-6 hover:bg-[#efefed] rounded-lg transition-colors p-2 -ml-2 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#37352f]/20 w-fit flex text-left">
                   {docEmoji}
-                </div>
+                </button>
               </EmojiPopover>
             )}
             <h1
