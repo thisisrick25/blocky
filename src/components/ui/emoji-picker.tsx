@@ -6,7 +6,7 @@ import {
   type EmojiPickerListRowProps,
   EmojiPicker as EmojiPickerPrimitive,
 } from "frimousse";
-import { LoaderIcon, SearchIcon, Dices } from "lucide-react";
+import { LoaderIcon, SearchIcon, Shuffle, Hand } from "lucide-react";
 import type * as React from "react";
 
 import { cn } from "@/lib/utils";
@@ -34,25 +34,34 @@ function EmojiPickerSearch({
 }: React.ComponentProps<typeof EmojiPickerPrimitive.Search> & { onRandom?: () => void }) {
   return (
     <div
-      className={cn("flex h-9 items-center gap-2 border-b px-3", className)}
+      className={cn("flex h-12 items-center gap-2 px-3 pt-2 pb-2", className)}
       data-slot="emoji-picker-search-wrapper"
     >
-      <SearchIcon className="size-4 shrink-0 opacity-50" />
-      <EmojiPickerPrimitive.Search
-        className="outline-hidden placeholder:text-muted-foreground flex h-10 w-full rounded-md bg-transparent py-3 text-sm disabled:cursor-not-allowed disabled:opacity-50"
-        data-slot="emoji-picker-search"
-        {...props}
-      />
+      <div className="relative flex-1 flex items-center">
+        <SearchIcon className="absolute left-2.5 size-4 opacity-50 text-muted-foreground" />
+        <EmojiPickerPrimitive.Search
+          className="outline-hidden placeholder:text-muted-foreground flex h-8 w-full rounded-[4px] border border-border bg-transparent pl-8 pr-3 text-sm focus-visible:border-blue-500 focus-visible:ring-1 focus-visible:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
+          data-slot="emoji-picker-search"
+          {...props}
+        />
+      </div>
       {onRandom && (
         <button
           type="button"
           onClick={onRandom}
-          className="p-1 hover:bg-accent rounded-md text-muted-foreground hover:text-foreground transition-colors shrink-0"
+          className="flex items-center justify-center size-8 hover:bg-accent rounded-[4px] text-muted-foreground hover:text-foreground transition-colors shrink-0 border border-border hover:border-border/80"
           title="Random Emoji"
         >
-          <Dices className="w-4 h-4" />
+          <Shuffle className="w-4 h-4" />
         </button>
       )}
+      <button
+        type="button"
+        className="flex items-center justify-center size-8 hover:bg-accent rounded-[4px] text-muted-foreground hover:text-foreground transition-colors shrink-0"
+        title="Skin Tone"
+      >
+        <span className="text-base leading-none">✋</span>
+      </button>
     </div>
   );
 }

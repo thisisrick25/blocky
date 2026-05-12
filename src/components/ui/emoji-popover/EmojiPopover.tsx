@@ -26,6 +26,7 @@ export function EmojiPopover({
   onRemove 
 }: EmojiPopoverProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<"emoji" | "icons" | "upload">("emoji");
 
   const handleRandom = () => {
     const randomEmoji = RANDOM_EMOJIS[Math.floor(Math.random() * RANDOM_EMOJIS.length)];
@@ -36,23 +37,68 @@ export function EmojiPopover({
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger render={React.isValidElement(children) ? children : <button>{children}</button>} />
-      <PopoverContent className="w-[320px] p-0 shadow-xl rounded-lg overflow-hidden flex flex-col" align="start">
-        {onRemove && (
-           <div className="flex justify-end p-2 border-b bg-zinc-50">
-             <button onClick={() => { onRemove(); setIsOpen(false); }} className="text-xs text-muted-foreground hover:text-foreground">Remove</button>
-           </div>
-        )}
-        <div className="h-[320px] bg-white w-full">
-          <EmojiPicker 
-            onEmojiSelect={(emoji) => {
-                onEmojiSelect(emoji.emoji);
-                setIsOpen(false);
-            }}
-            className="w-full h-full border-none shadow-none rounded-none"
-          >
-            <EmojiPickerSearch onRandom={handleRandom} />
-            <EmojiPickerContent />
-          </EmojiPicker>
+      <PopoverContent className="w-[360px] p-0 shadow-xl rounded-lg overflow-hidden flex flex-col bg-white" align="start" sideOffset={8}>
+        
+        {/* Notion-style Tabs Header */}
+        <div className="flex items-center justify-between px-4 pt-3 border-b border-border">
+            <div className="flex gap-4">
+                <button
+                    className={`text-sm font-medium pb-2 -mb-[1px] border-b-2 transition-colors ${activeTab === 'emoji' ? 'text-foreground border-foreground' : 'text-muted-foreground border-transparent hover:text-foreground'}`}
+                    onClick={() => setActiveTab("emoji")}
+                >
+                    Emoji
+                </button>
+                <button
+                    className={`text-sm font-medium pb-2 -mb-[1px] border-b-2 transition-colors ${activeTab === 'icons' ? 'text-foreground border-foreground' : 'text-muted-foreground border-transparent hover:text-foreground'}`}
+                    onClick={() => setActiveTab("icons")}
+                >
+                    Icons
+                </button>
+                <button
+                    className={`text-sm font-medium pb-2 -mb-[1px] border-b-2 transition-colors ${activeTab === 'upload' ? 'text-foreground border-foreground' : 'text-muted-foreground border-transparent hover:text-foreground'}`}
+                    onClick={() => setActiveTab("upload")}
+                >
+                    Upload
+                </button>
+            </div>
+            {onRemove && (
+                <button
+                    onClick={() => { onRemove(); setIsOpen(false); }}
+                    className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors pb-2"
+                >
+                    Remove
+                </button>
+            )}
+        </div>
+
+        {/* Content Area */}
+        <div className="h-[360px] w-full">
+            {activeTab === "emoji" && (
+                <EmojiPicker 
+                    onEmojiSelect={(emoji) => {
+                        onEmojiSelect(emoji.emoji);
+                        setIsOpen(false);
+                    }}
+                    className="w-full h-full border-none shadow-none rounded-none bg-transparent"
+                >
+                    <EmojiPickerSearch onRandom={handleRandom} />
+                    <div className="flex-1 overflow-hidden relative">
+                        <EmojiPickerContent className="absolute inset-0" />
+                    </div>
+                </EmojiPicker>
+            )}
+
+            {activeTab === "icons" && (
+                <div className="h-full flex items-center justify-center text-muted-foreground text-sm">
+                    Icons coming soon...
+                </div>
+            )}
+
+            {activeTab === "upload" && (
+                <div className="h-full flex items-center justify-center text-muted-foreground text-sm px-8 text-center">
+                    Upload a custom image coming soon...
+                </div>
+            )}
         </div>
       </PopoverContent>
     </Popover>
