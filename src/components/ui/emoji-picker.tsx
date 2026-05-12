@@ -42,6 +42,7 @@ function EmojiPickerSearch({
         <EmojiPickerPrimitive.Search
           className="outline-hidden placeholder:text-muted-foreground flex h-8 w-full rounded-[4px] border border-border bg-transparent pl-8 pr-3 text-sm focus-visible:border-blue-500 focus-visible:ring-1 focus-visible:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
           data-slot="emoji-picker-search"
+          placeholder="Filter..."
           {...props}
         />
       </div>
