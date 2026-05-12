@@ -13,7 +13,6 @@ function PopoverTrigger({ ...props }: PopoverPrimitive.Trigger.Props) {
   return (
     <PopoverPrimitive.Trigger
       data-slot="popover-trigger"
-      nativeButton={false}
       {...props}
     />
   )
