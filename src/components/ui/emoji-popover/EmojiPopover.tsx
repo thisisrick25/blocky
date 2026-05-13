@@ -16,7 +16,7 @@ import {
 export const RANDOM_EMOJIS = ["😀", "😂", "🥰", "😎", "🤔", "🌈", "🔥", "✨", "🍀", "🍎", "🚀", "🎸", "🏀", "🌍", "🎉"];
 
 const CATEGORY_MAP = [
-  { label: "Recently Used", icon: Clock },
+  { label: "Recents", icon: Clock },
   { label: "Smileys", icon: Smile },
   { label: "People", icon: Leaf },
   { label: "Nature", icon: Carrot },
@@ -78,7 +78,7 @@ export function EmojiPopover({
 
   const displayCategories = recentEmojis.length > 0
     ? CATEGORY_MAP
-    : CATEGORY_MAP.filter(c => c.label !== "Recently Used");
+    : CATEGORY_MAP.filter(c => c.label !== "Recents");
 
   const scrollToCategory = (categoryIndex: number) => {
     setActiveCategory(categoryIndex);
@@ -119,7 +119,7 @@ export function EmojiPopover({
           </div>
           {onRemove && (
             <button
-              onClick={() => { onRemove(); setIsOpen(false); }}
+              onClick={() => { onRemove(); }}
               className="text-[13px] font-medium text-muted-foreground hover:text-foreground transition-colors pb-1.5"
             >
               Remove
@@ -146,7 +146,7 @@ export function EmojiPopover({
                       className="bg-popover text-muted-foreground px-3 pb-2 pt-3 text-[13px] font-medium leading-none sticky top-0 z-10"
                       data-slot="emoji-picker-category-header"
                     >
-                      Recently Used
+                      Recents
                     </div>
                     <div className="grid grid-cols-8 gap-0 p-[4px] px-1 w-full justify-items-center">
                       {recentEmojis.map((emoji, idx) => (
