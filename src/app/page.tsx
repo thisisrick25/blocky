@@ -7,7 +7,7 @@ import { SidebarInset } from "@/components/ui/sidebar";
 import React, { useState, useRef } from "react";
 import { BlockNoteEditor } from "@blocknote/core";
 import { SmilePlus, Image as ImageIcon, MessageSquare } from "lucide-react";
-import { EmojiPopover } from "@/components/ui/emoji-popover/EmojiPopover";
+import { EmojiPopover, RANDOM_EMOJIS } from "@/components/ui/emoji-popover/EmojiPopover";
 
 const Editor = dynamic(() => import("@/components/Editor"), {
   ssr: false,
@@ -18,6 +18,7 @@ export default function Home() {
   const editorRef = useRef<BlockNoteEditor | null>(null);
   const [docEmoji, setDocEmoji] = useState("");
   const [docTitle, setDocTitle] = useState("");
+  const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
 
   const handleInsertBlocks = (blocks: any[]) => {
     if (editorRef.current) {
@@ -51,12 +52,17 @@ export default function Home() {
             {/* Action Buttons (visible on hover) */}
             <div className="flex items-center gap-4 mb-4 opacity-0 group-hover/page:opacity-100 transition-opacity duration-200">
               {!docEmoji && (
-                <EmojiPopover onEmojiSelect={setDocEmoji}>
-                  <button className="flex items-center gap-1.5 text-sm text-[#37352f]/50 hover:text-[#37352f]/80 hover:bg-[#efefed] px-2 py-1 rounded-[4px] transition-colors outline-none cursor-pointer">
+                  <button 
+                    onClick={() => {
+                      const randomEmoji = RANDOM_EMOJIS[Math.floor(Math.random() * RANDOM_EMOJIS.length)];
+                      setDocEmoji(randomEmoji);
+                      setIsEmojiPickerOpen(true);
+                    }}
+                    className="flex items-center gap-1.5 text-sm text-[#37352f]/50 hover:text-[#37352f]/80 hover:bg-[#efefed] px-2 py-1 rounded-[4px] transition-colors outline-none cursor-pointer"
+                  >
                     <SmilePlus className="w-4 h-4" />
                     <span>Add icon</span>
                   </button>
-                </EmojiPopover>
               )}
 
               <button className="flex items-center gap-1.5 text-sm text-[#37352f]/50 hover:text-[#37352f]/80 hover:bg-[#efefed] px-2 py-1 rounded-[4px] transition-colors outline-none cursor-pointer">
@@ -74,6 +80,8 @@ export default function Home() {
               <EmojiPopover
                 onEmojiSelect={setDocEmoji}
                 onRemove={() => setDocEmoji("")}
+                isOpen={isEmojiPickerOpen}
+                onOpenChange={setIsEmojiPickerOpen}
               >
                 <button className="text-[78px] leading-none mb-6 hover:bg-[#efefed] rounded-lg transition-colors p-2 -ml-2 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#37352f]/20 w-fit flex text-left">
                   {docEmoji}

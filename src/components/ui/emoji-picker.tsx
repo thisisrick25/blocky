@@ -8,6 +8,7 @@ import {
 } from "frimousse";
 import { LoaderIcon, SearchIcon, Shuffle, Hand } from "lucide-react";
 import type * as React from "react";
+import { forwardRef } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -40,9 +41,10 @@ function EmojiPickerSearch({
       <div className="relative flex-1 flex items-center">
         <SearchIcon className="absolute left-2.5 size-4 opacity-50 text-muted-foreground" />
         <EmojiPickerPrimitive.Search
-          className="outline-hidden placeholder:text-muted-foreground flex h-8 w-full rounded-[4px] border border-border bg-transparent pl-8 pr-3 text-sm focus-visible:border-blue-500 focus-visible:ring-1 focus-visible:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
+          className="outline-hidden placeholder:text-muted-foreground flex h-9 w-full rounded-[6px] border-[1.5px] border-[#3b82f6] bg-transparent pl-8 pr-3 text-sm focus-visible:outline-none focus:border-[#3b82f6] disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
           data-slot="emoji-picker-search"
           placeholder="Filter..."
+          autoFocus
           {...props}
         />
       </div>
@@ -50,7 +52,7 @@ function EmojiPickerSearch({
         <button
           type="button"
           onClick={onRandom}
-          className="flex items-center justify-center size-8 hover:bg-accent rounded-[4px] text-muted-foreground hover:text-foreground transition-colors shrink-0 border border-border hover:border-border/80"
+          className="flex items-center justify-center size-8 hover:bg-accent rounded-md text-muted-foreground hover:text-foreground transition-colors shrink-0 border border-border"
           title="Random Emoji"
         >
           <Shuffle className="w-4 h-4" />
@@ -58,7 +60,7 @@ function EmojiPickerSearch({
       )}
       <button
         type="button"
-        className="flex items-center justify-center size-8 hover:bg-accent rounded-[4px] text-muted-foreground hover:text-foreground transition-colors shrink-0"
+        className="flex items-center justify-center size-8 hover:bg-accent rounded-md text-muted-foreground hover:text-foreground transition-colors shrink-0 border-none"
         title="Skin Tone"
       >
         <span className="text-base leading-none">✋</span>
@@ -84,7 +86,7 @@ function EmojiPickerEmoji({
     <button
       {...props}
       className={cn(
-        "data-[active]:bg-accent flex size-7 items-center justify-center rounded-sm text-base",
+        "data-[active]:bg-accent flex size-8 hover:bg-accent items-center justify-center rounded-[6px] text-xl disabled:opacity-50",
         className
       )}
       data-slot="emoji-picker-emoji"
@@ -101,7 +103,7 @@ function EmojiPickerCategoryHeader({
   return (
     <div
       {...props}
-      className="bg-popover text-muted-foreground px-3 pb-2 pt-3.5 text-xs leading-none"
+      className="bg-popover text-muted-foreground px-3 pb-2 pt-3 text-[13px] font-medium leading-none sticky top-0 z-10"
       data-slot="emoji-picker-category-header"
     >
       {category.label}
@@ -109,12 +111,13 @@ function EmojiPickerCategoryHeader({
   );
 }
 
-function EmojiPickerContent({
-  className,
-  ...props
-}: React.ComponentProps<typeof EmojiPickerPrimitive.Viewport>) {
+function EmojiPickerContent(
+  { className, children, ...props }: React.ComponentProps<typeof EmojiPickerPrimitive.Viewport>,
+  ref: React.ForwardedRef<HTMLDivElement>
+) {
   return (
     <EmojiPickerPrimitive.Viewport
+      ref={ref}
       className={cn("outline-hidden relative flex-1 overflow-y-auto", className)}
       data-slot="emoji-picker-viewport"
       {...props}
@@ -131,6 +134,7 @@ function EmojiPickerContent({
       >
         No emoji found.
       </EmojiPickerPrimitive.Empty>
+      {children}
       <EmojiPickerPrimitive.List
         className="select-none pb-1"
         components={{
@@ -143,6 +147,8 @@ function EmojiPickerContent({
     </EmojiPickerPrimitive.Viewport>
   );
 }
+
+const EmojiPickerContentForwarded = forwardRef(EmojiPickerContent);
 
 function EmojiPickerFooter({
   className,
@@ -182,6 +188,6 @@ function EmojiPickerFooter({
 export {
   EmojiPicker,
   EmojiPickerSearch,
-  EmojiPickerContent,
+  EmojiPickerContentForwarded as EmojiPickerContent,
   EmojiPickerFooter,
 };
