@@ -71,7 +71,7 @@ function EmojiPickerSearch({
 
 function EmojiPickerRow({ children, ...props }: EmojiPickerListRowProps) {
   return (
-    <div {...props} className="scroll-my-1 px-1" data-slot="emoji-picker-row">
+    <div {...props} className="group scroll-my-1 px-1" data-slot="emoji-picker-row">
       {children}
     </div>
   );
@@ -85,8 +85,10 @@ function EmojiPickerEmoji({
   return (
     <button
       {...props}
+      style={{ "--emoji": `"${emoji.emoji}"` } as React.CSSProperties}
       className={cn(
-        "data-[active]:bg-accent flex size-8 hover:bg-accent items-center justify-center rounded-[6px] text-xl disabled:opacity-50",
+        "relative flex aspect-square size-8 items-center justify-center overflow-hidden rounded-md text-lg transition-colors disabled:opacity-50 hover:bg-accent/60 data-[active]:text-foreground",
+        "data-[active]:bg-muted/80 before:absolute before:inset-0 before:-z-10 before:hidden before:items-center before:justify-center before:text-[2.5em] before:blur-lg before:saturate-200 before:content-(--emoji) data-[active]:before:flex",
         className
       )}
       data-slot="emoji-picker-emoji"
