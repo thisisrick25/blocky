@@ -14,10 +14,12 @@ import { cn } from "@/lib/utils";
 
 function EmojiPicker({
   className,
+  columns = 12,
   ...props
 }: React.ComponentProps<typeof EmojiPickerPrimitive.Root>) {
   return (
     <EmojiPickerPrimitive.Root
+      columns={columns}
       className={cn(
         "bg-popover text-popover-foreground isolate flex h-full w-fit flex-col overflow-hidden rounded-md",
         className

@@ -148,7 +148,7 @@ export function EmojiPopover({
                     >
                       Recents
                     </div>
-                    <div className="grid grid-cols-8 gap-0 p-[4px] px-1 w-full justify-items-center">
+                    <div className="grid grid-cols-12 gap-0 p-[4px] px-1 w-full justify-items-center">
                       {recentEmojis.map((emoji, idx) => (
                         <button
                           key={idx}
