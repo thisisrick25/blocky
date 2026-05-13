@@ -18,16 +18,23 @@ function EmojiPickerSkinTonePopup({ emoji = "✋", className, ...props }: React.
   const [open, setOpen] = useState(false);
   const [skinTone, setSkinTone, variations] = useSkinTone(emoji);
 
+  const selectedEmoji = variations.find(v => v.skinTone === skinTone)?.emoji || emoji;
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger
-        className={cn("flex items-center justify-center size-8 hover:bg-accent rounded-md text-muted-foreground hover:text-foreground transition-colors shrink-0 border border-border cursor-pointer", className)}
+        style={{ "--emoji": `"${selectedEmoji}"` } as React.CSSProperties}
+        className={cn(
+          "relative flex aspect-square size-8 items-center justify-center overflow-hidden rounded-md text-lg transition-colors shrink-0 border border-border cursor-pointer hover:bg-accent/60",
+          "before:absolute before:inset-0 before:-z-10 before:hidden before:items-center before:justify-center before:text-[2.5em] before:blur-lg before:saturate-200 before:content-(--emoji) hover:before:flex",
+          className
+        )}
         title="Skin Tone"
         {...props}
       >
-        <span className="text-lg leading-none">{variations.find(v => v.skinTone === skinTone)?.emoji || emoji}</span>
+        {selectedEmoji}
       </PopoverTrigger>
-      <PopoverContent className="w-auto p-1 flex flex-row gap-0.5 items-center rounded-lg bg-popover shadow-md border" sideOffset={8} align="end">
+      <PopoverContent className="w-auto p-1 flex flex-row gap-0.5 items-center rounded-md bg-popover shadow-md border" sideOffset={8} align="end">
         {variations.map((variation) => (
           <button
             key={variation.skinTone}
@@ -37,9 +44,9 @@ function EmojiPickerSkinTonePopup({ emoji = "✋", className, ...props }: React.
             }}
             style={{ "--emoji": `"${variation.emoji}"` } as React.CSSProperties}
             className={cn(
-              "relative flex size-7 items-center justify-center overflow-hidden rounded-md text-lg leading-none transition-colors hover:bg-accent/60",
-              "before:absolute before:inset-0 before:-z-10 before:hidden before:items-center before:justify-center before:text-[2.4em] before:blur-lg before:saturate-200 before:content-(--emoji) hover:before:flex",
-              skinTone === variation.skinTone && "bg-muted/80 before:flex"
+              "relative flex aspect-square size-8 items-center justify-center overflow-hidden rounded-md text-lg transition-colors hover:bg-accent/60",
+              "before:absolute before:inset-0 before:-z-10 before:hidden before:items-center before:justify-center before:text-[2.5em] before:blur-lg before:saturate-200 before:content-(--emoji) hover:before:flex cursor-pointer",
+              skinTone === variation.skinTone && "bg-muted/80 text-foreground before:flex"
             )}
             title={variation.skinTone}
           >
