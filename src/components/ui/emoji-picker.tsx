@@ -5,12 +5,51 @@ import {
   type EmojiPickerListEmojiProps,
   type EmojiPickerListRowProps,
   EmojiPicker as EmojiPickerPrimitive,
+  useSkinTone,
 } from "frimousse";
 import { LoaderIcon, SearchIcon, Shuffle, Hand } from "lucide-react";
 import type * as React from "react";
-import { forwardRef } from "react";
+import { forwardRef, useState } from "react";
 
 import { cn } from "@/lib/utils";
+import { Popover, PopoverContent, PopoverTrigger } from "./popover";
+
+function EmojiPickerSkinTonePopup({ emoji = "✋", className, ...props }: React.ComponentProps<"button"> & { emoji?: string }) {
+  const [open, setOpen] = useState(false);
+  const [skinTone, setSkinTone, variations] = useSkinTone(emoji);
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger
+        className={cn("flex items-center justify-center size-8 hover:bg-accent rounded-md text-muted-foreground hover:text-foreground transition-colors shrink-0 border border-border cursor-pointer", className)}
+        title="Skin Tone"
+        {...props}
+      >
+        <span className="text-lg leading-none">{variations.find(v => v.skinTone === skinTone)?.emoji || emoji}</span>
+      </PopoverTrigger>
+      <PopoverContent className="w-auto p-1 flex flex-row gap-0.5 items-center rounded-lg bg-popover shadow-md border" sideOffset={8} align="end">
+        {variations.map((variation) => (
+          <button
+            key={variation.skinTone}
+            onClick={() => {
+              setSkinTone(variation.skinTone);
+              setOpen(false);
+            }}
+            style={{ "--emoji": `"${variation.emoji}"` } as React.CSSProperties}
+            className={cn(
+              "relative flex size-7 items-center justify-center overflow-hidden rounded-md text-lg leading-none transition-colors hover:bg-accent/60",
+              "before:absolute before:inset-0 before:-z-10 before:hidden before:items-center before:justify-center before:text-[2.4em] before:blur-lg before:saturate-200 before:content-(--emoji) hover:before:flex",
+              skinTone === variation.skinTone && "bg-muted/80 before:flex"
+            )}
+            title={variation.skinTone}
+          >
+            {variation.emoji}
+          </button>
+        ))}
+      </PopoverContent>
+    </Popover>
+  );
+}
 
 function EmojiPicker({
   className,
@@ -60,13 +99,7 @@ function EmojiPickerSearch({
           <Shuffle className="w-4 h-4" />
         </button>
       )}
-      <button
-        type="button"
-        className="flex items-center justify-center size-8 hover:bg-accent rounded-md text-muted-foreground hover:text-foreground transition-colors shrink-0 border-none"
-        title="Skin Tone"
-      >
-        <span className="text-base leading-none">✋</span>
-      </button>
+      <EmojiPickerSkinTonePopup emoji="✋" />
     </div>
   );
 }
