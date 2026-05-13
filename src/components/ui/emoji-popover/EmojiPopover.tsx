@@ -72,21 +72,19 @@ export function EmojiPopover({
         </div>
 
         {/* Content Area */}
-        <div className="h-[340px] w-full">
-          {activeTab === "emoji" && (
-            <EmojiPicker
-              onEmojiSelect={(emoji) => {
-                onEmojiSelect(emoji.emoji);
-                setIsOpen(false);
-              }}
-              className="w-full h-full border-none shadow-none rounded-none bg-transparent"
-            >
-              <EmojiPickerSearch onRandom={handleRandom} />
-              <div className="flex-1 overflow-hidden relative">
-                <EmojiPickerContent className="absolute inset-0" />
-              </div>
-            </EmojiPicker>
-          )}
+        <div className="h-[380px] w-full">
+            {activeTab === "emoji" && (
+                <EmojiPicker 
+                    onEmojiSelect={(emoji) => {
+                        onEmojiSelect(emoji.emoji);
+                        setIsOpen(false);
+                    }}
+                    className="w-full h-full border-none shadow-none rounded-none bg-transparent"
+                >
+                    <EmojiPickerSearch onRandom={handleRandom} />
+                    <EmojiPickerContent className="overflow-y-auto" />
+                </EmojiPicker>
+            )}
 
           {activeTab === "icons" && (
             <div className="h-full flex items-center justify-center text-muted-foreground text-sm">

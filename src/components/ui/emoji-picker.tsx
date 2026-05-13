@@ -115,7 +115,7 @@ function EmojiPickerContent({
 }: React.ComponentProps<typeof EmojiPickerPrimitive.Viewport>) {
   return (
     <EmojiPickerPrimitive.Viewport
-      className={cn("outline-hidden relative flex-1", className)}
+      className={cn("outline-hidden relative flex-1 overflow-y-auto", className)}
       data-slot="emoji-picker-viewport"
       {...props}
     >
