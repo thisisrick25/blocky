@@ -157,7 +157,8 @@ export function EmojiPopover({
                             onEmojiSelect(emoji);
                             setIsOpen(false);
                           }}
-                          className="flex items-center justify-center size-8 hover:bg-accent rounded-[6px] text-xl transition-colors"
+                          style={{ "--emoji": `"${emoji}"` } as React.CSSProperties}
+                          className="relative flex aspect-square size-8 items-center justify-center overflow-hidden rounded-md text-lg transition-colors hover:text-foreground before:absolute before:inset-0 before:-z-10 before:hidden before:items-center before:justify-center before:text-[2.5em] before:blur-lg before:saturate-200 before:content-(--emoji) hover:before:flex"
                         >
                           {emoji}
                         </button>
