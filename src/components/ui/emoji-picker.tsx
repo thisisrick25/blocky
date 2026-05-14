@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "./popover";
 
 export const emojiStyles = cn(
-  "isolate relative flex aspect-square size-8 items-center justify-center overflow-hidden rounded-md text-lg transition-colors hover:text-foreground data-[active]:text-foreground cursor-pointer disabled:opacity-50",
+  "isolate relative flex aspect-square size-8 shrink-0 items-center justify-center overflow-hidden rounded-md text-lg transition-colors hover:text-foreground data-[active]:text-foreground cursor-pointer disabled:opacity-50",
   "before:absolute before:inset-0 before:-z-10 before:hidden before:items-center before:justify-center before:text-[2.5em] before:blur-lg before:saturate-200 before:content-(--emoji) data-[active]:before:flex hover:before:flex"
 );
 

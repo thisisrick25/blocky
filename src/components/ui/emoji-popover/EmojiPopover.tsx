@@ -94,7 +94,7 @@ export function EmojiPopover({
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger render={React.isValidElement(children) ? children : <button>{children}</button>} />
-      <PopoverContent className="w-[360px] p-0 shadow-xl rounded-lg overflow-hidden flex flex-col bg-white" align="start" sideOffset={8}>
+      <PopoverContent className="w-[400px] p-0 shadow-xl rounded-lg overflow-hidden flex flex-col bg-white" align="start" sideOffset={8}>
 
         {/* Notion-style Tabs Header */}
         <div className="flex items-center justify-between px-3 pt-3 border-b border-border bg-white">
@@ -149,7 +149,7 @@ export function EmojiPopover({
                     >
                       Recents
                     </div>
-                    <div className="grid grid-cols-12 gap-0 p-[4px] px-1 w-full justify-items-center">
+                    <div className="flex flex-wrap gap-0 px-1 w-full">
                       {recentEmojis.map((emoji, idx) => (
                         <button
                           key={idx}
