@@ -109,9 +109,13 @@ function EmojiPickerSearch({
   );
 }
 
-function EmojiPickerRow({ children, ...props }: EmojiPickerListRowProps) {
+function EmojiPickerRow({ children, className, ...props }: EmojiPickerListRowProps) {
   return (
-    <div {...props} className="group scroll-my-1 px-1" data-slot="emoji-picker-row">
+    <div
+      {...props}
+      className={cn("group flex flex-row scroll-my-1 px-1", className)}
+      data-slot="emoji-picker-row"
+    >
       {children}
     </div>
   );
@@ -228,4 +232,5 @@ export {
   EmojiPickerSearch,
   EmojiPickerContentForwarded as EmojiPickerContent,
   EmojiPickerFooter,
+  EmojiPickerRow,
 };

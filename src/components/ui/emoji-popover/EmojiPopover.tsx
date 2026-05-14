@@ -6,6 +6,7 @@ import {
   EmojiPicker,
   EmojiPickerSearch,
   EmojiPickerContent,
+  EmojiPickerRow,
   emojiStyles
 } from "@/components/ui/emoji-picker";
 import {
@@ -142,30 +143,32 @@ export function EmojiPopover({
               <EmojiPickerSearch onRandom={handleRandom} />
               <EmojiPickerContent ref={viewportRef} className="overflow-y-auto w-full">
                 {recentEmojis.length > 0 && (
-                  <div className="w-full pb-1">
+                  <>
                     <div
                       className="bg-popover text-muted-foreground px-3 pb-2 pt-3 text-[13px] font-medium leading-none sticky top-0 z-10"
                       data-slot="emoji-picker-category-header"
                     >
                       Recents
                     </div>
-                    <div className="flex flex-wrap gap-0 px-1 w-full">
-                      {recentEmojis.map((emoji, idx) => (
-                        <button
-                          key={idx}
-                          onClick={() => {
-                            addRecentEmoji(emoji);
-                            onEmojiSelect(emoji);
-                            setIsOpen(false);
-                          }}
-                          style={{ "--emoji": `"${emoji}"` } as React.CSSProperties}
-                          className={emojiStyles}
-                        >
-                          {emoji}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
+                    {Array.from({ length: Math.ceil(recentEmojis.length / 12) }, (_, i) => (
+                      <EmojiPickerRow key={i}>
+                        {recentEmojis.slice(i * 12, (i + 1) * 12).map((emoji, idx) => (
+                          <button
+                            key={idx}
+                            onClick={() => {
+                              addRecentEmoji(emoji);
+                              onEmojiSelect(emoji);
+                              setIsOpen(false);
+                            }}
+                            style={{ "--emoji": `"${emoji}"` } as React.CSSProperties}
+                            className={emojiStyles}
+                          >
+                            {emoji}
+                          </button>
+                        ))}
+                      </EmojiPickerRow>
+                    ))}
+                  </>
                 )}
               </EmojiPickerContent>
 
