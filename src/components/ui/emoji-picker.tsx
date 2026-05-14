@@ -25,7 +25,7 @@ function EmojiPickerSkinTonePopup({ emoji = "✋", className, ...props }: React.
       <PopoverTrigger
         style={{ "--emoji": `"${selectedEmoji}"` } as React.CSSProperties}
         className={cn(
-          "relative flex aspect-square size-8 items-center justify-center overflow-hidden rounded-md text-lg cursor-pointer",
+          "isolate relative flex aspect-square size-8 items-center justify-center overflow-hidden rounded-md text-lg cursor-pointer",
           "before:absolute before:inset-0 before:-z-10 before:hidden before:items-center before:justify-center before:text-[2.5em] before:blur-lg before:saturate-200 before:content-(--emoji) hover:before:flex",
           className
         )}
@@ -34,7 +34,7 @@ function EmojiPickerSkinTonePopup({ emoji = "✋", className, ...props }: React.
       >
         {selectedEmoji}
       </PopoverTrigger>
-      <PopoverContent className="w-auto p-1 flex flex-row gap-0.5 items-center rounded-md bg-popover shadow-md border" sideOffset={8} align="end">
+      <PopoverContent className="bg-popover flex flex-row w-auto items-center gap-0.5 rounded-md border p-1 shadow-md" sideOffset={8} align="end">
         {variations.map((variation) => (
           <button
             key={variation.skinTone}
@@ -45,8 +45,8 @@ function EmojiPickerSkinTonePopup({ emoji = "✋", className, ...props }: React.
             data-active={skinTone === variation.skinTone ? "" : undefined}
             style={{ "--emoji": `"${variation.emoji}"` } as React.CSSProperties}
             className={cn(
-              "relative flex aspect-square size-8 items-center justify-center overflow-hidden rounded-md text-lg transition-colors hover:bg-accent/60 hover:text-foreground data-[active]:text-foreground cursor-pointer",
-              "data-[active]:bg-muted/80 before:absolute before:inset-0 before:-z-10 before:hidden before:items-center before:justify-center before:text-[2.5em] before:blur-lg before:saturate-200 before:content-(--emoji) data-[active]:before:flex hover:before:flex"
+              "isolate relative flex aspect-square size-8 items-center justify-center overflow-hidden rounded-md text-lg transition-colors hover:text-foreground data-[active]:text-foreground cursor-pointer",
+              "before:absolute before:inset-0 before:-z-10 before:hidden before:items-center before:justify-center before:text-[2.5em] before:blur-lg before:saturate-200 before:content-(--emoji) data-[active]:before:flex hover:before:flex"
             )}
             title={variation.skinTone}
           >
@@ -129,8 +129,8 @@ function EmojiPickerEmoji({
       {...props}
       style={{ "--emoji": `"${emoji.emoji}"` } as React.CSSProperties}
       className={cn(
-        "relative flex aspect-square size-8 items-center justify-center overflow-hidden rounded-md text-lg transition-colors disabled:opacity-50 hover:bg-accent/60 data-[active]:text-foreground",
-        "data-[active]:bg-muted/80 before:absolute before:inset-0 before:-z-10 before:hidden before:items-center before:justify-center before:text-[2.5em] before:blur-lg before:saturate-200 before:content-(--emoji) data-[active]:before:flex",
+        "isolate relative flex aspect-square size-8 items-center justify-center overflow-hidden rounded-md text-lg transition-colors disabled:opacity-50 hover:text-foreground data-[active]:text-foreground",
+        "before:absolute before:inset-0 before:-z-10 before:hidden before:items-center before:justify-center before:text-[2.5em] before:blur-lg before:saturate-200 before:content-(--emoji) data-[active]:before:flex hover:before:flex",
         className
       )}
       data-slot="emoji-picker-emoji"
