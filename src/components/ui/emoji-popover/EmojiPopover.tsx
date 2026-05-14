@@ -150,9 +150,8 @@ export function EmojiPopover({
                     >
                       Recents
                     </div>
-                    {Array.from({ length: Math.ceil(recentEmojis.length / 12) }, (_, i) => (
-                      <EmojiPickerRow key={i}>
-                        {recentEmojis.slice(i * 12, (i + 1) * 12).map((emoji, idx) => (
+                  <EmojiPickerRow className="flex-wrap pb-2 w-full">
+                    {recentEmojis.map((emoji, idx) => (
                           <button
                             key={idx}
                             onClick={() => {
