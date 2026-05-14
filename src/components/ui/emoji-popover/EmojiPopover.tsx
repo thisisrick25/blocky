@@ -143,7 +143,7 @@ export function EmojiPopover({
               <EmojiPickerSearch onRandom={handleRandom} />
               <EmojiPickerContent ref={viewportRef} className="overflow-y-auto w-full">
                 {recentEmojis.length > 0 && (
-                  <>
+                  <div className="w-full">
                     <div
                       className="bg-popover text-muted-foreground px-3 pb-2 pt-3 text-[13px] font-medium leading-none sticky top-0 z-10"
                       data-slot="emoji-picker-category-header"
@@ -168,7 +168,7 @@ export function EmojiPopover({
                         ))}
                       </EmojiPickerRow>
                     ))}
-                  </>
+                  </div>
                 )}
               </EmojiPickerContent>
 

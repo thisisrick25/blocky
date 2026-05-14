@@ -145,7 +145,7 @@ function EmojiPickerCategoryHeader({
   return (
     <div
       {...props}
-      className="bg-popover text-muted-foreground px-3 pb-2 pt-3 text-[13px] font-medium leading-none sticky top-0 z-10"
+      className="bg-popover text-muted-foreground px-3 pb-2 pt-3 text-[13px] font-medium leading-none"
       data-slot="emoji-picker-category-header"
     >
       {category.label}
