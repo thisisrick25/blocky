@@ -141,35 +141,30 @@ export function EmojiPopover({
               className="w-full h-full border-none shadow-none rounded-none bg-transparent"
             >
               <EmojiPickerSearch onRandom={handleRandom} />
-              <EmojiPickerContent ref={viewportRef} className="overflow-y-auto w-full">
                 {recentEmojis.length > 0 && (
-                  <div className="w-full">
-                    <div
-                      className="bg-popover text-muted-foreground px-3 pb-2 pt-3 text-[13px] font-medium leading-none sticky top-0 z-10"
-                      data-slot="emoji-picker-category-header"
-                    >
+                  <div id="recents-section" className="w-full shrink-0">
+                    <div className="bg-popover text-muted-foreground px-3 pb-2 pt-3 text-[13px] font-medium leading-none sticky top-0 z-10">
                       Recents
                     </div>
-                  <EmojiPickerRow className="flex-wrap pb-2 w-full">
-                    {recentEmojis.map((emoji, idx) => (
-                          <button
-                            key={idx}
-                            onClick={() => {
-                              addRecentEmoji(emoji);
-                              onEmojiSelect(emoji);
-                              setIsOpen(false);
-                            }}
-                            style={{ "--emoji": `"${emoji}"` } as React.CSSProperties}
-                            className={emojiStyles}
-                          >
-                            {emoji}
-                          </button>
-                        ))}
-                      </EmojiPickerRow>
-                    ))}
+                    <EmojiPickerRow className="flex-wrap w-full pb-2">
+                      {recentEmojis.map((emoji, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => {
+                            addRecentEmoji(emoji);
+                            onEmojiSelect(emoji);
+                            setIsOpen(false);
+                          }}
+                          style={{ "--emoji": `"${emoji}"` } as React.CSSProperties}
+                          className={emojiStyles}
+                        >
+                          {emoji}
+                        </button>
+                      ))}
+                    </EmojiPickerRow>
                   </div>
                 )}
-              </EmojiPickerContent>
+              <EmojiPickerContent ref={viewportRef} className="overflow-y-auto w-full" />
 
               {/* Bottom Navigation */}
               <div className="flex items-center justify-between px-3 py-[6px] border-t border-border bg-white mt-auto overflow-x-auto">
