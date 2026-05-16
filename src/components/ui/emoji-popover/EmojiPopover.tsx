@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { Clock, Smile, Leaf, Carrot, Activity, Plane, Lightbulb, CheckCircle2, Flag, LayoutGrid, Plus } from "lucide-react";
+import { Clock, Smile, Leaf, Carrot, Activity, Plane, Lightbulb, CheckCircle2, Flag, LayoutGrid, Plus, SearchIcon, Shuffle, icons } from "lucide-react";
 import {
   EmojiPicker,
   EmojiPickerSearch,
@@ -17,6 +17,19 @@ import {
 } from "@/components/ui/popover";
 
 export const RANDOM_EMOJIS = ["😀", "😂", "🥰", "😎", "🤔", "🌈", "🔥", "✨", "🍀", "🍎", "🚀", "🎸", "🏀", "🌍", "🎉"];
+
+const ICON_COLORS = [
+  { name: "Default", color: "#dfdfde" },
+  { name: "Gray", color: "#9b9a97" },
+  { name: "Brown", color: "#64473a" },
+  { name: "Orange", color: "#d9730d" },
+  { name: "Yellow", color: "#dfab01" },
+  { name: "Green", color: "#0f7b6c" },
+  { name: "Blue", color: "#0b6e99" },
+  { name: "Purple", color: "#6940a5" },
+  { name: "Pink", color: "#ad1a72" },
+  { name: "Red", color: "#e03e3e" },
+];
 
 const CATEGORY_MAP = [
   { label: "Recents", icon: Clock },
@@ -52,19 +65,43 @@ export function EmojiPopover({
   const [activeTab, setActiveTab] = useState<"emoji" | "icons" | "upload">("emoji");
   const [activeCategory, setActiveCategory] = useState(0);
   const [recentEmojis, setRecentEmojis] = useState<string[]>([]);
+  const [recentIcons, setRecentIcons] = useState<string[]>([]);
   const viewportRef = useRef<HTMLDivElement>(null);
 
-  // Load recently used emojis from localStorage
+  const [iconSearch, setIconSearch] = useState("");
+  const [selectedColor, setSelectedColor] = useState(ICON_COLORS[0].color);
+  const [askEveryTime, setAskEveryTime] = useState(true);
+
+  const allIconNames = Object.keys(icons);
+  const filteredIcons = allIconNames.filter(name => name.toLowerCase().includes(iconSearch.toLowerCase()));
+
+  // Load recently used emojis and icons from localStorage
   useEffect(() => {
-    const saved = localStorage.getItem("recentEmojis");
-    if (saved) {
+    const savedEmojis = localStorage.getItem("recentEmojis");
+    if (savedEmojis) {
       try {
-        const parsed = JSON.parse(saved);
+        const parsed = JSON.parse(savedEmojis);
         if (Array.isArray(parsed)) {
           setRecentEmojis(parsed.slice(0, 24));
         }
       } catch { }
     }
+
+    const savedIcons = localStorage.getItem("recentIcons");
+    if (savedIcons) {
+      try {
+        const parsed = JSON.parse(savedIcons);
+        if (Array.isArray(parsed)) {
+          setRecentIcons(parsed.slice(0, 24));
+        }
+      } catch { }
+    }
+
+    const savedColor = localStorage.getItem("selectedIconColor");
+    if (savedColor) setSelectedColor(savedColor);
+
+    const savedAsk = localStorage.getItem("askEveryTime");
+    if (savedAsk) setAskEveryTime(savedAsk === "true");
   }, []);
 
   // Save recently used emojis to localStorage
@@ -76,15 +113,47 @@ export function EmojiPopover({
     });
   };
 
+  // Save recently used icons to localStorage
+  const addRecentIcon = (iconName: string) => {
+    setRecentIcons((prev) => {
+      const updated = [iconName, ...prev.filter((i) => i !== iconName)].slice(0, 24);
+      localStorage.setItem("recentIcons", JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  const handleColorChange = (color: string) => {
+    setSelectedColor(color);
+    localStorage.setItem("selectedIconColor", color);
+  };
+
+  const handleAskToggle = () => {
+    const newVal = !askEveryTime;
+    setAskEveryTime(newVal);
+    localStorage.setItem("askEveryTime", String(newVal));
+  };
+
   const clearRecents = () => {
     setRecentEmojis([]);
     localStorage.removeItem("recentEmojis");
     setActiveCategory(0);
   };
 
+  const clearRecentIcons = () => {
+    setRecentIcons([]);
+    localStorage.removeItem("recentIcons");
+  };
+
   const handleRandom = () => {
     const randomEmoji = RANDOM_EMOJIS[Math.floor(Math.random() * RANDOM_EMOJIS.length)];
     onEmojiSelect(randomEmoji);
+    setIsOpen(false);
+  };
+
+  const handleRandomIcon = () => {
+    const randomIconName = allIconNames[Math.floor(Math.random() * allIconNames.length)];
+    addRecentIcon(randomIconName);
+    onEmojiSelect(`lucide:${randomIconName}:${selectedColor}`);
     setIsOpen(false);
   };
 
@@ -211,8 +280,134 @@ export function EmojiPopover({
           )}
 
           {activeTab === "icons" && (
-            <div className="h-full flex items-center justify-center text-muted-foreground text-sm">
-              Icons coming soon...
+            <div className="w-full h-full flex flex-col bg-transparent">
+              <div className="flex h-12 items-center gap-2 px-3 pt-2 pb-2">
+                <div className="relative flex-1 flex items-center">
+                  <SearchIcon className="absolute left-2.5 size-4 opacity-50 text-muted-foreground" />
+                  <input
+                    type="text"
+                    value={iconSearch}
+                    onChange={(e) => setIconSearch(e.target.value)}
+                    className="outline-hidden placeholder:text-muted-foreground flex h-9 w-full rounded-[6px] border-[1.5px] border-[#3b82f6] bg-transparent pl-8 pr-3 text-sm focus-visible:outline-none focus:border-[#3b82f6] disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
+                    placeholder="Filter icons..."
+                    autoFocus
+                  />
+                </div>
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={handleRandomIcon}
+                    className="flex items-center justify-center size-8 hover:bg-accent rounded-md text-muted-foreground hover:text-foreground transition-colors shrink-0 border border-border"
+                    title="Random Icon"
+                  >
+                    <Shuffle className="w-4 h-4" />
+                  </button>
+
+                  <Popover>
+                    <PopoverTrigger>
+                      <button 
+                        className="flex items-center justify-center size-8 hover:bg-accent rounded-md shrink-0 border border-border transition-colors"
+                        title="Change Color"
+                      >
+                        <div 
+                          className="size-3.5 rounded-full ring-1 ring-border" 
+                          style={{ backgroundColor: selectedColor }} 
+                        />
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0.5 flex flex-col items-center gap-0.5 bg-white shadow-md border rounded-lg" sideOffset={8} align="end">
+                      <div className="grid grid-cols-5 gap-0.5">
+                        {ICON_COLORS.map((c) => (
+                          <button
+                            key={c.name}
+                            onClick={() => handleColorChange(c.color)}
+                            className={`flex items-center justify-center size-8 hover:bg-accent rounded-md shrink-0 transition-colors cursor-pointer ${selectedColor === c.color ? 'bg-accent' : ''}`}
+                            title={c.name}
+                          >
+                            <div 
+                              className="size-3.5 rounded-full ring-1 ring-border" 
+                              style={{ backgroundColor: c.color }} 
+                            />
+                          </button>
+                        ))}
+                      </div>
+                      <div className="flex items-center justify-between p-1 border-t border-border">
+                        <span className="text-[13px] text-[#37352f]/70 font-medium">Ask every time</span>
+                        <button
+                          onClick={handleAskToggle}
+                          className={`w-8 h-4.5 rounded-full relative transition-colors cursor-pointer ${askEveryTime ? 'bg-blue-500' : 'bg-[#efefed]'}`}
+                        >
+                          <div className={`absolute top-0.5 size-3.5 bg-white rounded-full shadow-sm transition-all ${askEveryTime ? 'right-0.5' : 'left-0.5'}`} />
+                        </button>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              </div>
+              
+              <div className="overflow-y-auto w-full flex-1 pb-2">
+                {filteredIcons.length === 0 ? (
+                  <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
+                    No icon found.
+                  </div>
+                ) : (
+                  <>
+                    {recentIcons.length > 0 && iconSearch === "" && (
+                      <div className="w-full shrink-0">
+                        <EmojiPickerCategoryHeader category={{ label: "Recents" }}>
+                          <button
+                            onClick={clearRecentIcons}
+                            className="text-[11px] font-medium text-muted-foreground hover:text-foreground hover:bg-accent px-1.5 py-0.5 rounded transition-colors"
+                          >
+                            Clear
+                          </button>
+                        </EmojiPickerCategoryHeader>
+                        <div className="grid grid-cols-12 gap-0 px-1 pb-2">
+                          {recentIcons.map((iconName) => {
+                            const IconComponent = icons[iconName as keyof typeof icons];
+                            if (!IconComponent) return null;
+                            return (
+                              <button
+                                key={`recent-${iconName}`}
+                                onClick={() => {
+                                  addRecentIcon(iconName);
+                                  onEmojiSelect(`lucide:${iconName}:${selectedColor}`);
+                                  setIsOpen(false);
+                                }}
+                                className="flex size-8 items-center justify-center rounded-md hover:bg-accent hover:text-accent-foreground transition-colors text-muted-foreground shrink-0"
+                                title={iconName}
+                              >
+                                <IconComponent className="w-4.5 h-4.5" style={{ color: selectedColor }} />
+                              </button>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    )}
+                    <EmojiPickerCategoryHeader category={{ label: "Icons" }} />
+                    <div className="grid grid-cols-12 gap-0 px-1">
+                      {filteredIcons.map((iconName) => {
+                        const IconComponent = icons[iconName as keyof typeof icons];
+                        if (!IconComponent) return null;
+                        return (
+                          <button
+                            key={iconName}
+                            onClick={() => {
+                              addRecentIcon(iconName);
+                              onEmojiSelect(`lucide:${iconName}:${selectedColor}`);
+                              setIsOpen(false);
+                            }}
+                            className="flex size-8 items-center justify-center rounded-md hover:bg-accent hover:text-accent-foreground transition-colors text-muted-foreground shrink-0"
+                            title={iconName}
+                          >
+                            <IconComponent className="w-4.5 h-4.5" style={{ color: selectedColor }} />
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
           )}
 
