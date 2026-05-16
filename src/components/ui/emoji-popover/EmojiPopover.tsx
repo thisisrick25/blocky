@@ -133,7 +133,7 @@ export function EmojiPopover({
     localStorage.setItem("askEveryTime", String(newVal));
   };
 
-  const clearRecents = () => {
+  const clearRecentEmojis = () => {
     setRecentEmojis([]);
     localStorage.removeItem("recentEmojis");
     setActiveCategory(0);
@@ -144,7 +144,7 @@ export function EmojiPopover({
     localStorage.removeItem("recentIcons");
   };
 
-  const handleRandom = () => {
+  const handleRandomEmoji = () => {
     const randomEmoji = RANDOM_EMOJIS[Math.floor(Math.random() * RANDOM_EMOJIS.length)];
     onEmojiSelect(randomEmoji);
     setIsOpen(false);
@@ -219,7 +219,7 @@ export function EmojiPopover({
               }}
               className="w-full h-full border-none shadow-none rounded-none bg-transparent"
             >
-              <EmojiPickerSearch onRandom={handleRandom} />
+              <EmojiPickerSearch onRandom={handleRandomEmoji} />
 
               <EmojiPickerContent ref={viewportRef} className="overflow-y-auto w-full">
                 {recentEmojis.length > 0 && (
@@ -228,7 +228,7 @@ export function EmojiPopover({
                       category={{ label: "Recents" }}
                     >
                       <button
-                        onClick={clearRecents}
+                        onClick={clearRecentEmojis}
                         className="text-[11px] font-medium text-muted-foreground hover:text-foreground hover:bg-accent px-1.5 py-0.5 rounded transition-colors"
                       >
                         Clear
