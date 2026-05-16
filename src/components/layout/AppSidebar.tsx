@@ -12,6 +12,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { FileText, Plus, Search, Settings } from "lucide-react";
+import { DocIcon } from "@/components/ui/DocIcon";
 
 export function AppSidebar({ docEmoji = "📄", docTitle = "" }: { docEmoji?: string, docTitle?: string }) {
   return (
@@ -54,7 +55,9 @@ export function AppSidebar({ docEmoji = "📄", docTitle = "" }: { docEmoji?: st
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton isActive className="bg-[#efefed] text-[#37352f] font-medium">
-                  <span className="text-lg leading-none mr-2">{docEmoji}</span>
+                  <div className="w-4 h-4 mr-2 flex items-center justify-center">
+                    <DocIcon icon={docEmoji} className="w-full h-full" />
+                  </div>
                   <span className="text-sm truncate">{docTitle || "Untitled"}</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>

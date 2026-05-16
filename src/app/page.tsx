@@ -8,6 +8,7 @@ import React, { useState, useRef } from "react";
 import { BlockNoteEditor } from "@blocknote/core";
 import { SmilePlus, Image as ImageIcon, MessageSquare } from "lucide-react";
 import { EmojiPopover, RANDOM_EMOJIS } from "@/components/ui/emoji-popover/EmojiPopover";
+import { DocIcon } from "@/components/ui/DocIcon";
 
 const Editor = dynamic(() => import("@/components/Editor"), {
   ssr: false,
@@ -76,19 +77,21 @@ export default function Home() {
               </button>
             </div>
             {/* Emoji Icon */}
-            <EmojiPopover
-              onEmojiSelect={setDocEmoji}
-              onRemove={() => setDocEmoji("")}
-              isOpen={isEmojiPickerOpen}
-              onOpenChange={setIsEmojiPickerOpen}
-            >
-              <button
-                className="text-[78px] leading-none mb-6 hover:bg-[#efefed] rounded-lg transition-colors p-2 -ml-2 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#37352f]/20 w-fit flex items-center justify-center text-left"
-                aria-label={docEmoji ? "Edit page icon" : "Add page icon"}
+            {docEmoji && (
+              <EmojiPopover
+                onEmojiSelect={setDocEmoji}
+                onRemove={() => setDocEmoji("")}
+                isOpen={isEmojiPickerOpen}
+                onOpenChange={setIsEmojiPickerOpen}
               >
-                {docEmoji}
-              </button>
-            </EmojiPopover>
+                <button
+                  className="size-20 flex items-center justify-center text-[78px] leading-none mb-6 hover:bg-[#efefed] rounded-lg transition-colors p-2 -ml-2 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#37352f]/20 text-left"
+                  aria-label="Edit page icon"
+                >
+                  <DocIcon icon={docEmoji} />
+                </button>
+              </EmojiPopover>
+            )}
             <h1
               className="text-[40px] font-bold text-[#37352f] leading-tight outline-none empty:before:content-['Untitled'] empty:before:text-[#37352f]/20 cursor-text"
               contentEditable
