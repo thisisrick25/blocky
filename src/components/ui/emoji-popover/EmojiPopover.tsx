@@ -332,12 +332,12 @@ export function EmojiPopover({
                         ))}
                       </div>
                       <div className="flex items-center justify-between p-1 border-t border-border">
-                        <span className="text-[13px] text-[#37352f]/70 font-medium">Ask every time</span>
+                        <span className="text-[13px] pr-2 text-[#37352f]/70 font-medium">Ask every time</span>
                         <button
                           onClick={handleAskToggle}
-                          className={`w-8 h-4.5 rounded-full relative transition-colors cursor-pointer ${askEveryTime ? 'bg-blue-500' : 'bg-[#efefed]'}`}
+                          className={`w-8 h-4 rounded-full relative transition-colors cursor-pointer ${askEveryTime ? 'bg-blue-500' : 'bg-[#efefed]'}`}
                         >
-                          <div className={`absolute top-0.5 size-3.5 bg-white rounded-full shadow-sm transition-all ${askEveryTime ? 'right-0.5' : 'left-0.5'}`} />
+                          <div className={`absolute top-0.5 size-3 bg-white rounded-full shadow-sm transition-all ${askEveryTime ? 'right-0.5' : 'left-0.5'}`} />
                         </button>
                       </div>
                     </PopoverContent>
