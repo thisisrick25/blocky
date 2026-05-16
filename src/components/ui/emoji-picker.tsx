@@ -35,7 +35,7 @@ function EmojiPickerSkinTonePopup({ emoji = "✋", className, ...props }: React.
       >
         {selectedEmoji}
       </PopoverTrigger>
-      <PopoverContent className="bg-popover flex flex-row w-auto items-center gap-0.5 rounded-md border p-1 shadow-md" sideOffset={8} align="end">
+      <PopoverContent className="bg-popover flex flex-row w-auto items-center gap-0.5 rounded-lg border p-0.5 shadow-md" sideOffset={8} align="end">
         {variations.map((variation) => (
           <button
             key={variation.skinTone}
