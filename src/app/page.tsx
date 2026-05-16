@@ -7,8 +7,8 @@ import { SidebarInset } from "@/components/ui/sidebar";
 import React, { useState, useRef } from "react";
 import { BlockNoteEditor } from "@blocknote/core";
 import { SmilePlus, Image as ImageIcon, MessageSquare } from "lucide-react";
-import { EmojiPopover, RANDOM_EMOJIS } from "@/components/ui/emoji-popover/EmojiPopover";
-import { DocIcon } from "@/components/ui/DocIcon";
+import { EmojiconPopover, RANDOM_EMOJIS } from "@/components/ui/emojicon-popover/EmojiconPopover";
+import { DocEmojicon } from "@/components/ui/DocEmojicon";
 
 const Editor = dynamic(() => import("@/components/Editor"), {
   ssr: false,
@@ -17,9 +17,9 @@ const Editor = dynamic(() => import("@/components/Editor"), {
 export default function Home() {
   const [aiContext, setAiContext] = useState<string | null>(null);
   const editorRef = useRef<BlockNoteEditor | null>(null);
-  const [docEmoji, setDocEmoji] = useState("");
+  const [emojicon, setEmojicon] = useState("");
   const [docTitle, setDocTitle] = useState("");
-  const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
+  const [isEmojiconPickerOpen, setIsEmojiconPickerOpen] = useState(false);
 
   const handleInsertBlocks = (blocks: any[]) => {
     if (editorRef.current) {
@@ -33,7 +33,7 @@ export default function Home() {
 
   return (
     <>
-      <AppSidebar docEmoji={docEmoji || "📄"} docTitle={docTitle} />
+      <AppSidebar emojicon={emojicon || "📄"} docTitle={docTitle} />
       <SidebarInset className="flex flex-col flex-1 overflow-hidden bg-white">
         <header className="flex h-11 items-center gap-4 bg-white px-8 mt-2 sticky top-0 z-10">
           <div className="flex-1">
@@ -52,12 +52,12 @@ export default function Home() {
 
             {/* Action Buttons (visible on hover) */}
             <div className="flex items-center gap-4 mb-4 opacity-0 group-hover/page:opacity-100 transition-opacity duration-200">
-              {!docEmoji && (
+              {!emojicon && (
                 <button
                   onClick={() => {
                     const randomEmoji = RANDOM_EMOJIS[Math.floor(Math.random() * RANDOM_EMOJIS.length)];
-                    setDocEmoji(randomEmoji);
-                    setIsEmojiPickerOpen(true);
+                    setEmojicon(randomEmoji);
+                    setIsEmojiconPickerOpen(true);
                   }}
                   className="flex items-center gap-1.5 text-sm text-[#37352f]/50 hover:text-[#37352f]/80 hover:bg-[#efefed] px-2 py-1 rounded-[4px] transition-colors outline-none cursor-pointer"
                 >
@@ -77,20 +77,20 @@ export default function Home() {
               </button>
             </div>
             {/* Emoji Icon */}
-            {docEmoji && (
-              <EmojiPopover
-                onEmojiSelect={setDocEmoji}
-                onRemove={() => setDocEmoji("")}
-                isOpen={isEmojiPickerOpen}
-                onOpenChange={setIsEmojiPickerOpen}
+            {emojicon && (
+              <EmojiconPopover
+                onEmojiconSelect={setEmojicon}
+                onRemove={() => setEmojicon("")}
+                isOpen={isEmojiconPickerOpen}
+                onOpenChange={setIsEmojiconPickerOpen}
               >
                 <button
                   className="size-20 flex items-center justify-center text-[78px] leading-none mb-6 hover:bg-[#efefed] rounded-lg transition-colors p-2 -ml-2 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#37352f]/20 text-left"
                   aria-label="Edit page icon"
                 >
-                  <DocIcon icon={docEmoji} />
+                  <DocEmojicon emojicon={emojicon} />
                 </button>
-              </EmojiPopover>
+              </EmojiconPopover>
             )}
             <h1
               className="text-[40px] font-bold text-[#37352f] leading-tight outline-none empty:before:content-['Untitled'] empty:before:text-[#37352f]/20 cursor-text"
