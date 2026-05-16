@@ -7,6 +7,7 @@ import {
   EmojiPickerSearch,
   EmojiPickerContent,
   EmojiPickerRow,
+  EmojiPickerCategoryHeader,
   emojiStyles
 } from "@/components/ui/emoji-picker";
 import {
@@ -58,7 +59,10 @@ export function EmojiPopover({
     const saved = localStorage.getItem("recentEmojis");
     if (saved) {
       try {
-        setRecentEmojis(JSON.parse(saved));
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          setRecentEmojis(parsed.slice(0, 24));
+        }
       } catch { }
     }
   }, []);
@@ -70,6 +74,12 @@ export function EmojiPopover({
       localStorage.setItem("recentEmojis", JSON.stringify(updated));
       return updated;
     });
+  };
+
+  const clearRecents = () => {
+    setRecentEmojis([]);
+    localStorage.removeItem("recentEmojis");
+    setActiveCategory(0);
   };
 
   const handleRandom = () => {
@@ -141,11 +151,20 @@ export function EmojiPopover({
               className="w-full h-full border-none shadow-none rounded-none bg-transparent"
             >
               <EmojiPickerSearch onRandom={handleRandom} />
+
+              <EmojiPickerContent ref={viewportRef} className="overflow-y-auto w-full">
                 {recentEmojis.length > 0 && (
                   <div id="recents-section" className="w-full shrink-0">
-                    <div className="bg-popover text-muted-foreground px-3 pb-2 pt-3 text-[13px] font-medium leading-none sticky top-0 z-10">
-                      Recents
-                    </div>
+                    <EmojiPickerCategoryHeader
+                      category={{ label: "Recents" }}
+                    >
+                      <button
+                        onClick={clearRecents}
+                        className="text-[11px] font-medium text-muted-foreground hover:text-foreground hover:bg-accent px-1.5 py-0.5 rounded transition-colors"
+                      >
+                        Clear
+                      </button>
+                    </EmojiPickerCategoryHeader>
                     <EmojiPickerRow className="flex-wrap w-full pb-2">
                       {recentEmojis.map((emoji, idx) => (
                         <button
@@ -164,7 +183,7 @@ export function EmojiPopover({
                     </EmojiPickerRow>
                   </div>
                 )}
-              <EmojiPickerContent ref={viewportRef} className="overflow-y-auto w-full" />
+              </EmojiPickerContent>
 
               {/* Bottom Navigation */}
               <div className="flex items-center justify-between px-3 py-[6px] border-t border-border bg-white mt-auto overflow-x-auto">

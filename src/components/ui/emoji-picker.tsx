@@ -140,15 +140,21 @@ function EmojiPickerEmoji({
 
 function EmojiPickerCategoryHeader({
   category,
+  className,
+  children,
   ...props
-}: EmojiPickerListCategoryHeaderProps) {
+}: EmojiPickerListCategoryHeaderProps & { className?: string; children?: React.ReactNode }) {
   return (
     <div
       {...props}
-      className="bg-popover text-muted-foreground px-3 pb-2 pt-3 text-[13px] font-medium leading-none"
+      className={cn(
+        "bg-popover text-muted-foreground px-3 pb-2 pt-3 text-[13px] font-medium leading-none sticky top-0 z-10 flex items-center justify-between",
+        className
+      )}
       data-slot="emoji-picker-category-header"
     >
-      {category.label}
+      <span>{category.label}</span>
+      {children}
     </div>
   );
 }
@@ -233,4 +239,5 @@ export {
   EmojiPickerContentForwarded as EmojiPickerContent,
   EmojiPickerFooter,
   EmojiPickerRow,
+  EmojiPickerCategoryHeader,
 };
