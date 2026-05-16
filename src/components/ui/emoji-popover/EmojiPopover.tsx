@@ -379,7 +379,7 @@ export function EmojiPopover({
                                 className="flex size-8 items-center justify-center rounded-md hover:bg-accent hover:text-accent-foreground transition-colors text-muted-foreground shrink-0"
                                 title={iconName}
                               >
-                                <IconComponent className="w-4.5 h-4.5" style={{ color: selectedColor }} />
+                                <IconComponent className="w-4.5 h-4.5 transition-colors duration-300" style={{ color: selectedColor }} />
                               </button>
                             )
                           })}
@@ -402,7 +402,7 @@ export function EmojiPopover({
                             className="flex size-8 items-center justify-center rounded-md hover:bg-accent hover:text-accent-foreground transition-colors text-muted-foreground shrink-0"
                             title={iconName}
                           >
-                            <IconComponent className="w-4.5 h-4.5" style={{ color: selectedColor }} />
+                            <IconComponent className="w-4.5 h-4.5 transition-colors duration-300" style={{ color: selectedColor }} />
                           </button>
                         )
                       })}
