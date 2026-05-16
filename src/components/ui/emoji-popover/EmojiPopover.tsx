@@ -19,16 +19,16 @@ import {
 export const RANDOM_EMOJIS = ["😀", "😂", "🥰", "😎", "🤔", "🌈", "🔥", "✨", "🍀", "🍎", "🚀", "🎸", "🏀", "🌍", "🎉"];
 
 const ICON_COLORS = [
-  { name: "Default", color: "#dfdfde" },
-  { name: "Gray", color: "#9b9a97" },
-  { name: "Brown", color: "#64473a" },
+  { name: "Default", color: "#54524d" },
+  { name: "Light Gray", color: "#a6a299" },
+  { name: "Brown", color: "#9f6b53" },
+  { name: "Yellow", color: "#cb912f" },
   { name: "Orange", color: "#d9730d" },
-  { name: "Yellow", color: "#dfab01" },
-  { name: "Green", color: "#0f7b6c" },
-  { name: "Blue", color: "#0b6e99" },
-  { name: "Purple", color: "#6940a5" },
-  { name: "Pink", color: "#ad1a72" },
-  { name: "Red", color: "#e03e3e" },
+  { name: "Green", color: "#448361" },
+  { name: "Blue", color: "#337ea9" },
+  { name: "Purple", color: "#9065b0" },
+  { name: "Pink", color: "#c14c8a" },
+  { name: "Red", color: "#d44c47" },
 ];
 
 const CATEGORY_MAP = [
