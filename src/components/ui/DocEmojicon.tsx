@@ -2,16 +2,16 @@ import React from "react";
 import { icons } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-interface DocIconProps {
-  icon: string;
+interface DocEmojiconProps {
+  emojicon: string;
   className?: string;
 }
 
-export function DocIcon({ icon, className }: DocIconProps) {
-  if (!icon) return null;
+export function DocEmojicon({ emojicon, className }: DocEmojiconProps) {
+  if (!emojicon) return null;
 
-  if (icon.startsWith("lucide:")) {
-    const parts = icon.split(":");
+  if (emojicon.startsWith("lucide:")) {
+    const parts = emojicon.split(":");
     const iconName = parts[1];
     const color = parts[2]; // May be undefined
     
@@ -31,5 +31,5 @@ export function DocIcon({ icon, className }: DocIconProps) {
   }
 
   // Treat as emoji
-  return <span className={className}>{icon}</span>;
+  return <span className={className}>{emojicon}</span>;
 }
