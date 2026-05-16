@@ -304,17 +304,19 @@ export function EmojiPopover({
                   </button>
 
                   <Popover>
-                    <PopoverTrigger>
-                      <button 
-                        className="flex items-center justify-center size-8 hover:bg-accent rounded-md shrink-0 border border-border transition-colors"
-                        title="Change Color"
-                      >
-                        <div 
-                          className="size-3.5 rounded-full ring-1 ring-border" 
-                          style={{ backgroundColor: selectedColor }} 
-                        />
-                      </button>
-                    </PopoverTrigger>
+                    <PopoverTrigger
+                      render={
+                        <button
+                          className="flex items-center justify-center size-8 hover:bg-accent rounded-md shrink-0 border border-border transition-colors"
+                          title="Change Color"
+                        >
+                          <div
+                            className="size-3.5 rounded-full ring-1 ring-border"
+                            style={{ backgroundColor: selectedColor }}
+                          />
+                        </button>
+                      }
+                    />
                     <PopoverContent className="w-auto p-0.5 flex flex-col items-center gap-0.5 bg-white shadow-md border rounded-lg" sideOffset={8} align="end">
                       <div className="grid grid-cols-5 gap-0.5">
                         {ICON_COLORS.map((c) => (
