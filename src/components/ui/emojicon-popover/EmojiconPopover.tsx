@@ -43,21 +43,21 @@ const CATEGORY_MAP = [
   { label: "Symbols", icon: Flag },
 ];
 
-interface EmojiPopoverProps {
+interface EmojiconPopoverProps {
   children: React.ReactNode;
-  onEmojiSelect: (emoji: string) => void;
+  onEmojiconSelect: (emojicon: string) => void;
   onRemove?: () => void;
   isOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
 }
 
-export function EmojiPopover({
+export function EmojiconPopover({
   children,
-  onEmojiSelect,
+  onEmojiconSelect,
   onRemove,
   isOpen: controlledIsOpen,
   onOpenChange: controlledOnOpenChange
-}: EmojiPopoverProps) {
+}: EmojiconPopoverProps) {
   const [internalIsOpen, setInternalIsOpen] = useState(false);
   const isOpen = controlledIsOpen !== undefined ? controlledIsOpen : internalIsOpen;
   const setIsOpen = controlledOnOpenChange || setInternalIsOpen;
@@ -146,14 +146,14 @@ export function EmojiPopover({
 
   const handleRandomEmoji = () => {
     const randomEmoji = RANDOM_EMOJIS[Math.floor(Math.random() * RANDOM_EMOJIS.length)];
-    onEmojiSelect(randomEmoji);
+    onEmojiconSelect(randomEmoji);
     setIsOpen(false);
   };
 
   const handleRandomIcon = () => {
     const randomIconName = allIconNames[Math.floor(Math.random() * allIconNames.length)];
     addRecentIcon(randomIconName);
-    onEmojiSelect(`lucide:${randomIconName}:${selectedColor}`);
+    onEmojiconSelect(`lucide:${randomIconName}:${selectedColor}`);
     setIsOpen(false);
   };
 
@@ -212,9 +212,9 @@ export function EmojiPopover({
         <div className="h-[380px] w-full flex flex-col">
           {activeTab === "emoji" && (
             <EmojiPicker
-              onEmojiSelect={(emoji) => {
-                addRecentEmoji(emoji.emoji);
-                onEmojiSelect(emoji.emoji);
+              onEmojiSelect={(emojiconValue) => {
+                addRecentEmoji(emojiconValue.emoji);
+                onEmojiconSelect(emojiconValue.emoji);
                 setIsOpen(false);
               }}
               className="w-full h-full border-none shadow-none rounded-none bg-transparent"
@@ -240,7 +240,7 @@ export function EmojiPopover({
                           key={idx}
                           onClick={() => {
                             addRecentEmoji(emoji);
-                            onEmojiSelect(emoji);
+                            onEmojiconSelect(emoji);
                             setIsOpen(false);
                           }}
                           style={{ "--emoji": `"${emoji}"` } as React.CSSProperties}
@@ -373,7 +373,7 @@ export function EmojiPopover({
                                 key={`recent-${iconName}`}
                                 onClick={() => {
                                   addRecentIcon(iconName);
-                                  onEmojiSelect(`lucide:${iconName}:${selectedColor}`);
+                                  onEmojiconSelect(`lucide:${iconName}:${selectedColor}`);
                                   setIsOpen(false);
                                 }}
                                 className="flex size-8 items-center justify-center rounded-md hover:bg-accent hover:text-accent-foreground transition-colors text-muted-foreground shrink-0"
@@ -396,7 +396,7 @@ export function EmojiPopover({
                             key={iconName}
                             onClick={() => {
                               addRecentIcon(iconName);
-                              onEmojiSelect(`lucide:${iconName}:${selectedColor}`);
+                              onEmojiconSelect(`lucide:${iconName}:${selectedColor}`);
                               setIsOpen(false);
                             }}
                             className="flex size-8 items-center justify-center rounded-md hover:bg-accent hover:text-accent-foreground transition-colors text-muted-foreground shrink-0"
