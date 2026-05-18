@@ -1,7 +1,10 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
-import { Clock, Smile, Leaf, Carrot, Activity, Plane, Lightbulb, CheckCircle2, Flag, LayoutGrid, Plus, SearchIcon, Shuffle, icons } from "lucide-react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
+import { Clock, Smile, Leaf, Carrot, Activity, Plane, Lightbulb, CheckCircle2, Flag, LayoutGrid, Plus, SearchIcon, Shuffle } from "lucide-react";
+import * as LuIcons from "react-icons/lu";
+import * as PiIcons from "react-icons/pi";
+import * as RiIcons from "react-icons/ri";
 import {
   EmojiPicker,
   EmojiPickerSearch,
@@ -17,6 +20,14 @@ import {
 } from "@/components/ui/popover";
 
 export const RANDOM_EMOJIS = ["😀", "😂", "🥰", "😎", "🤔", "🌈", "🔥", "✨", "🍀", "🍎", "🚀", "🎸", "🏀", "🌍", "🎉"];
+
+const ICON_LIBS = {
+  lu: { label: "Lucide", icons: LuIcons },
+  pi: { label: "Phosphor", icons: PiIcons },
+  ri: { label: "Remix", icons: RiIcons },
+} as const;
+
+type IconLibKey = keyof typeof ICON_LIBS;
 
 const ICON_COLORS = [
   { name: "Default", color: "#54524d" },
@@ -41,6 +52,11 @@ const CATEGORY_MAP = [
   { label: "Travel & Places", icon: Lightbulb },
   { label: "Objects", icon: CheckCircle2 },
   { label: "Symbols", icon: Flag },
+];
+
+const ICON_CATEGORY_MAP = [
+  { label: "Recents", icon: Clock },
+  { label: "Icons", icon: LayoutGrid },
 ];
 
 interface EmojiconPopoverProps {
@@ -72,8 +88,40 @@ export function EmojiconPopover({
   const [selectedColor, setSelectedColor] = useState(ICON_COLORS[0].color);
   const [askEveryTime, setAskEveryTime] = useState(true);
 
-  const allIconNames = Object.keys(icons);
-  const filteredIcons = allIconNames.filter(name => name.toLowerCase().includes(iconSearch.toLowerCase()));
+  // Memoize all icons from all libraries
+  const allIconsByLib = useMemo(() => {
+    const libs: Record<string, { prefix: IconLibKey; names: string[] }> = {};
+    (Object.keys(ICON_LIBS) as IconLibKey[]).forEach(libKey => {
+      const libIcons = ICON_LIBS[libKey].icons as Record<string, any>;
+      libs[libKey] = {
+        prefix: libKey,
+        names: Object.keys(libIcons).filter(name => typeof libIcons[name] === "function")
+      };
+    });
+    return libs;
+  }, []);
+
+  const filteredIconsByLib = useMemo(() => {
+    const filtered: Record<string, string[]> = {};
+    const searchLower = iconSearch.toLowerCase();
+    
+    (Object.keys(allIconsByLib) as IconLibKey[]).forEach(libKey => {
+      filtered[libKey] = allIconsByLib[libKey].names.filter(name => 
+        name.toLowerCase().includes(searchLower)
+      );
+    });
+    return filtered;
+  }, [allIconsByLib, iconSearch]);
+
+  const hasAnyIcons = useMemo(() => 
+    Object.values(filteredIconsByLib).some(icons => icons.length > 0),
+    [filteredIconsByLib]
+  );
+
+  // Reset active category when tab changes
+  useEffect(() => {
+    setActiveCategory(0);
+  }, [activeTab]);
 
   // Load recently used emojis and icons from localStorage
   useEffect(() => {
@@ -114,9 +162,10 @@ export function EmojiconPopover({
   };
 
   // Save recently used icons to localStorage
-  const addRecentIcon = (iconName: string) => {
+  const addRecentIcon = (iconName: string, prefix: string) => {
+    const fullIconName = `${prefix}:${iconName}`;
     setRecentIcons((prev) => {
-      const updated = [iconName, ...prev.filter((i) => i !== iconName)].slice(0, 24);
+      const updated = [fullIconName, ...prev.filter((i) => i !== fullIconName)].slice(0, 24);
       localStorage.setItem("recentIcons", JSON.stringify(updated));
       return updated;
     });
@@ -142,6 +191,7 @@ export function EmojiconPopover({
   const clearRecentIcons = () => {
     setRecentIcons([]);
     localStorage.removeItem("recentIcons");
+    setActiveCategory(0);
   };
 
   const handleRandomEmoji = () => {
@@ -151,15 +201,27 @@ export function EmojiconPopover({
   };
 
   const handleRandomIcon = () => {
-    const randomIconName = allIconNames[Math.floor(Math.random() * allIconNames.length)];
-    addRecentIcon(randomIconName);
-    onEmojiconSelect(`lucide:${randomIconName}:${selectedColor}`);
+    const libKeys = Object.keys(ICON_LIBS) as IconLibKey[];
+    const randomLibKey = libKeys[Math.floor(Math.random() * libKeys.length)];
+    const libNames = allIconsByLib[randomLibKey].names;
+    const randomIconName = libNames[Math.floor(Math.random() * libNames.length)];
+    
+    addRecentIcon(randomIconName, randomLibKey);
+    onEmojiconSelect(`${randomLibKey}:${randomIconName}:${selectedColor}`);
     setIsOpen(false);
   };
 
   const displayCategories = recentEmojis.length > 0
     ? CATEGORY_MAP
     : CATEGORY_MAP.filter(c => c.label !== "Recents");
+
+  const iconCategories = useMemo(() => {
+    const cats = recentIcons.length > 0 ? [{ label: "Recents", icon: Clock }] : [];
+    (Object.keys(ICON_LIBS) as IconLibKey[]).forEach(libKey => {
+      cats.push({ label: ICON_LIBS[libKey].label, icon: LayoutGrid });
+    });
+    return cats;
+  }, [recentIcons]);
 
   const scrollToCategory = (categoryIndex: number) => {
     setActiveCategory(categoryIndex);
@@ -255,7 +317,7 @@ export function EmojiconPopover({
               </EmojiPickerContent>
 
               {/* Bottom Navigation */}
-              <div className="flex items-center justify-between px-3 py-[6px] border-t border-border bg-white mt-auto overflow-x-auto">
+              <div className="flex items-center justify-between px-3 py-[6px] border-t border-border bg-white mt-auto overflow-x-auto no-scrollbar">
                 <div className="flex items-center gap-1.5 text-muted-foreground">
                   {displayCategories.map((category, index) => {
                     const IconComponent = category.icon;
@@ -347,8 +409,8 @@ export function EmojiconPopover({
                 </div>
               </div>
               
-              <div className="overflow-y-auto w-full flex-1 pb-2">
-                {filteredIcons.length === 0 ? (
+              <div ref={viewportRef} className="overflow-y-auto w-full flex-1 pb-2 scroll-smooth">
+                {!hasAnyIcons ? (
                   <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
                     No icon found.
                   </div>
@@ -365,15 +427,20 @@ export function EmojiconPopover({
                           </button>
                         </EmojiPickerCategoryHeader>
                         <div className="grid grid-cols-12 gap-0 px-1 pb-2">
-                          {recentIcons.map((iconName) => {
-                            const IconComponent = icons[iconName as keyof typeof icons];
+                          {recentIcons.map((fullIconName) => {
+                            const parts = fullIconName.split(":");
+                            const prefix = parts.length > 1 ? parts[0] as IconLibKey : "lu";
+                            const iconName = parts.length > 1 ? parts[1] : parts[0];
+                            
+                            const lib = ICON_LIBS[prefix] || ICON_LIBS.lu;
+                            const IconComponent = lib.icons[iconName as keyof typeof lib.icons] as React.ComponentType<any>;
                             if (!IconComponent) return null;
                             return (
                               <button
-                                key={`recent-${iconName}`}
+                                key={`recent-${fullIconName}`}
                                 onClick={() => {
-                                  addRecentIcon(iconName);
-                                  onEmojiconSelect(`lucide:${iconName}:${selectedColor}`);
+                                  addRecentIcon(iconName, prefix);
+                                  onEmojiconSelect(`${prefix}:${iconName}:${selectedColor}`);
                                   setIsOpen(false);
                                 }}
                                 className="flex size-8 items-center justify-center rounded-md hover:bg-accent hover:text-accent-foreground transition-colors text-muted-foreground shrink-0"
@@ -386,29 +453,64 @@ export function EmojiconPopover({
                         </div>
                       </div>
                     )}
-                    <EmojiPickerCategoryHeader category={{ label: "Icons" }} />
-                    <div className="grid grid-cols-12 gap-0 px-1">
-                      {filteredIcons.map((iconName) => {
-                        const IconComponent = icons[iconName as keyof typeof icons];
-                        if (!IconComponent) return null;
-                        return (
-                          <button
-                            key={iconName}
-                            onClick={() => {
-                              addRecentIcon(iconName);
-                              onEmojiconSelect(`lucide:${iconName}:${selectedColor}`);
-                              setIsOpen(false);
-                            }}
-                            className="flex size-8 items-center justify-center rounded-md hover:bg-accent hover:text-accent-foreground transition-colors text-muted-foreground shrink-0"
-                            title={iconName}
-                          >
-                            <IconComponent className="w-4.5 h-4.5 transition-colors duration-300" style={{ color: selectedColor }} />
-                          </button>
-                        )
-                      })}
-                    </div>
+                    
+                    {(Object.keys(ICON_LIBS) as IconLibKey[]).map(libKey => {
+                      const icons = filteredIconsByLib[libKey];
+                      if (icons.length === 0) return null;
+                      
+                      return (
+                        <div key={libKey} className="w-full shrink-0">
+                          <EmojiPickerCategoryHeader category={{ label: ICON_LIBS[libKey].label }} />
+                          <div className="grid grid-cols-12 gap-0 px-1">
+                            {icons.map((iconName) => {
+                              const lib = ICON_LIBS[libKey];
+                              const IconComponent = lib.icons[iconName as keyof typeof lib.icons] as React.ComponentType<any>;
+                              if (!IconComponent) return null;
+                              return (
+                                <button
+                                  key={`${libKey}-${iconName}`}
+                                  onClick={() => {
+                                    addRecentIcon(iconName, libKey);
+                                    onEmojiconSelect(`${libKey}:${iconName}:${selectedColor}`);
+                                    setIsOpen(false);
+                                  }}
+                                  className="flex size-8 items-center justify-center rounded-md hover:bg-accent hover:text-accent-foreground transition-colors text-muted-foreground shrink-0"
+                                  title={iconName}
+                                >
+                                  <IconComponent className="w-4.5 h-4.5 transition-colors duration-300" style={{ color: selectedColor }} />
+                                </button>
+                              )
+                            })}
+                          </div>
+                        </div>
+                      );
+                    })}
                   </>
                 )}
+              </div>
+
+              {/* Bottom Navigation */}
+              <div className="flex items-center justify-between px-3 py-[6px] border-t border-border bg-white mt-auto overflow-x-auto no-scrollbar">
+                <div className="flex items-center gap-1.5 text-muted-foreground">
+                  {iconCategories.map((category, index) => {
+                    const isRecents = category.label === "Recents";
+                    const IconComponent = category.icon;
+                    return (
+                      <button
+                        key={index}
+                        onClick={() => scrollToCategory(index)}
+                        className={`rounded-md transition-colors shrink-0 font-medium ${activeCategory === index
+                          ? 'bg-accent/50 text-foreground'
+                          : 'hover:bg-accent hover:text-foreground'
+                          } ${isRecents ? 'p-1.5' : 'px-2 py-1 text-[11px]'}`}
+                        title={category.label}
+                      >
+                        {isRecents ? <IconComponent className="w-4 h-4" /> : category.label}
+                      </button>
+                    );
+                  })}
+                  <button className="p-[5px] hover:bg-black/10 bg-black/5 text-muted-foreground rounded-full transition-colors ml-1 shrink-0"><Plus className="w-[18px] h-[18px]" /></button>
+                </div>
               </div>
             </div>
           )}
