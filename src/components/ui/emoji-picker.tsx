@@ -1,15 +1,8 @@
 "use client";
 
-import {
-  type EmojiPickerListCategoryHeaderProps,
-  type EmojiPickerListEmojiProps,
-  type EmojiPickerListRowProps,
-  EmojiPicker as EmojiPickerPrimitive,
-  useSkinTone,
-} from "frimousse";
-import { LoaderIcon, SearchIcon, Shuffle, Hand } from "lucide-react";
+import { LoaderIcon, SearchIcon, Shuffle } from "lucide-react";
 import type * as React from "react";
-import { forwardRef, useState } from "react";
+import { useState } from "react";
 
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "./popover";
@@ -19,36 +12,48 @@ export const emojiStyles = cn(
   "before:absolute before:inset-0 before:-z-10 before:hidden before:items-center before:justify-center before:text-[2.5em] before:blur-lg before:saturate-200 before:content-(--emoji) data-[active]:before:flex hover:before:flex"
 );
 
-function EmojiPickerSkinTonePopup({ emoji = "✋", className, ...props }: React.ComponentProps<"button"> & { emoji?: string }) {
-  const [open, setOpen] = useState(false);
-  const [skinTone, setSkinTone, variations] = useSkinTone(emoji);
+export const SKIN_TONES = [
+  { label: "Default", emoji: "✋" },
+  { label: "Light", emoji: "✋🏻", tone: 1 },
+  { label: "Medium-Light", emoji: "✋🏼", tone: 2 },
+  { label: "Medium", emoji: "✋🏽", tone: 3 },
+  { label: "Medium-Dark", emoji: "✋🏾", tone: 4 },
+  { label: "Dark", emoji: "✋🏿", tone: 5 },
+];
 
-  const selectedEmoji = variations.find(v => v.skinTone === skinTone)?.emoji || emoji;
+export function EmojiPickerSkinTonePopup({ 
+  currentTone, 
+  onToneSelect 
+}: { 
+  currentTone: number | null, 
+  onToneSelect: (tone: number | null) => void 
+}) {
+  const [open, setOpen] = useState(false);
+  const currentEmoji = SKIN_TONES.find(s => s.tone === (currentTone || undefined))?.emoji || "✋";
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger
-        style={{ "--emoji": `"${selectedEmoji}"` } as React.CSSProperties}
-        className={cn(emojiStyles, className)}
+        style={{ "--emoji": `"${currentEmoji}"` } as React.CSSProperties}
+        className={cn(emojiStyles)}
         title="Skin Tone"
-        {...props}
       >
-        {selectedEmoji}
+        {currentEmoji}
       </PopoverTrigger>
-      <PopoverContent className="bg-popover flex flex-row w-auto items-center gap-0.5 rounded-lg border p-0.5 shadow-md" sideOffset={8} align="end">
-        {variations.map((variation) => (
+      <PopoverContent className="bg-popover flex flex-row w-auto items-center gap-0.5 rounded-lg border p-0.5 shadow-md bg-white" sideOffset={8} align="end">
+        {SKIN_TONES.map((s) => (
           <button
-            key={variation.skinTone}
+            key={s.label}
             onClick={() => {
-              setSkinTone(variation.skinTone);
+              onToneSelect(s.tone || null);
               setOpen(false);
             }}
-            data-active={skinTone === variation.skinTone ? "" : undefined}
-            style={{ "--emoji": `"${variation.emoji}"` } as React.CSSProperties}
+            data-active={currentTone === (s.tone || null) ? "" : undefined}
+            style={{ "--emoji": `"${s.emoji}"` } as React.CSSProperties}
             className={emojiStyles}
-            title={variation.skinTone}
+            title={s.label}
           >
-            {variation.emoji}
+            {s.emoji}
           </button>
         ))}
       </PopoverContent>
@@ -56,60 +61,7 @@ function EmojiPickerSkinTonePopup({ emoji = "✋", className, ...props }: React.
   );
 }
 
-function EmojiPicker({
-  className,
-  columns = 12,
-  ...props
-}: React.ComponentProps<typeof EmojiPickerPrimitive.Root>) {
-  return (
-    <EmojiPickerPrimitive.Root
-      columns={columns}
-      className={cn(
-        "bg-popover text-popover-foreground isolate flex h-full w-fit flex-col overflow-hidden rounded-md",
-        className
-      )}
-      data-slot="emoji-picker"
-      {...props}
-    />
-  );
-}
-
-function EmojiPickerSearch({
-  className,
-  onRandom,
-  ...props
-}: React.ComponentProps<typeof EmojiPickerPrimitive.Search> & { onRandom?: () => void }) {
-  return (
-    <div
-      className={cn("flex h-12 items-center gap-2 px-3 pt-2 pb-2", className)}
-      data-slot="emoji-picker-search-wrapper"
-    >
-      <div className="relative flex-1 flex items-center">
-        <SearchIcon className="absolute left-2.5 size-4 opacity-50 text-muted-foreground" />
-        <EmojiPickerPrimitive.Search
-          className="outline-hidden placeholder:text-muted-foreground flex h-9 w-full rounded-[6px] border-[1.5px] border-[#3b82f6] bg-transparent pl-8 pr-3 text-sm focus-visible:outline-none focus:border-[#3b82f6] disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
-          data-slot="emoji-picker-search"
-          placeholder="Filter..."
-          autoFocus
-          {...props}
-        />
-      </div>
-      {onRandom && (
-        <button
-          type="button"
-          onClick={onRandom}
-          className="flex items-center justify-center size-8 hover:bg-accent rounded-md text-muted-foreground hover:text-foreground transition-colors shrink-0 border border-border"
-          title="Random Emoji"
-        >
-          <Shuffle className="w-4 h-4" />
-        </button>
-      )}
-      <EmojiPickerSkinTonePopup emoji="✋" />
-    </div>
-  );
-}
-
-function EmojiPickerRow({ children, className, ...props }: EmojiPickerListRowProps) {
+export function EmojiPickerRow({ children, className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       {...props}
@@ -121,34 +73,17 @@ function EmojiPickerRow({ children, className, ...props }: EmojiPickerListRowPro
   );
 }
 
-function EmojiPickerEmoji({
-  emoji,
-  className,
-  ...props
-}: EmojiPickerListEmojiProps) {
-  return (
-    <button
-      {...props}
-      style={{ "--emoji": `"${emoji.emoji}"` } as React.CSSProperties}
-      className={cn(emojiStyles, className)}
-      data-slot="emoji-picker-emoji"
-    >
-      {emoji.emoji}
-    </button>
-  );
-}
-
-function EmojiPickerCategoryHeader({
+export function EmojiPickerCategoryHeader({
   category,
   className,
   children,
   ...props
-}: EmojiPickerListCategoryHeaderProps & { className?: string; children?: React.ReactNode }) {
+}: React.ComponentProps<"div"> & { category: { label: string }; children?: React.ReactNode }) {
   return (
     <div
       {...props}
       className={cn(
-        "bg-popover text-muted-foreground px-3 pb-2 pt-3 text-[13px] font-medium leading-none sticky top-0 z-10 flex items-center justify-between",
+        "bg-white text-muted-foreground px-3 pb-2 pt-3 text-[13px] font-medium leading-none sticky top-0 z-10 flex items-center justify-between",
         className
       )}
       data-slot="emoji-picker-category-header"
@@ -159,85 +94,34 @@ function EmojiPickerCategoryHeader({
   );
 }
 
-function EmojiPickerContent(
-  { className, children, ...props }: React.ComponentProps<typeof EmojiPickerPrimitive.Viewport>,
-  ref: React.ForwardedRef<HTMLDivElement>
-) {
-  return (
-    <EmojiPickerPrimitive.Viewport
-      ref={ref}
-      className={cn("outline-hidden relative flex-1 overflow-y-auto", className)}
-      data-slot="emoji-picker-viewport"
-      {...props}
-    >
-      <EmojiPickerPrimitive.Loading
-        className="absolute inset-0 flex items-center justify-center text-muted-foreground"
-        data-slot="emoji-picker-loading"
-      >
-        <LoaderIcon className="size-4 animate-spin" />
-      </EmojiPickerPrimitive.Loading>
-      <EmojiPickerPrimitive.Empty
-        className="absolute inset-0 flex items-center justify-center text-muted-foreground text-sm"
-        data-slot="emoji-picker-empty"
-      >
-        No emoji found.
-      </EmojiPickerPrimitive.Empty>
-      {children}
-      <EmojiPickerPrimitive.List
-        className="select-none pb-1"
-        components={{
-          Row: EmojiPickerRow,
-          Emoji: EmojiPickerEmoji,
-          CategoryHeader: EmojiPickerCategoryHeader,
-        }}
-        data-slot="emoji-picker-list"
-      />
-    </EmojiPickerPrimitive.Viewport>
-  );
-}
-
-const EmojiPickerContentForwarded = forwardRef(EmojiPickerContent);
-
-function EmojiPickerFooter({
+export function EmojiPickerFooter({
+  hoveredEmoji,
   className,
   ...props
-}: React.ComponentProps<"div">) {
+}: { hoveredEmoji: { emoji: string, label: string } | null } & React.ComponentProps<"div">) {
   return (
     <div
       className={cn(
-        "max-w-(--frimousse-viewport-width) flex w-full min-w-0 items-center gap-1 border-t p-2",
+        "flex w-full min-w-0 items-center gap-1 border-t p-2 bg-white",
         className
       )}
       data-slot="emoji-picker-footer"
       {...props}
     >
-      <EmojiPickerPrimitive.ActiveEmoji>
-        {({ emoji }) =>
-          emoji ? (
-            <>
-              <div className="flex size-7 flex-none items-center justify-center text-lg">
-                {emoji.emoji}
-              </div>
-              <span className="text-secondary-foreground truncate text-xs">
-                {emoji.label}
-              </span>
-            </>
-          ) : (
-            <span className="text-muted-foreground ml-1.5 flex h-7 items-center truncate text-xs">
-              Select an emoji…
-            </span>
-          )
-        }
-      </EmojiPickerPrimitive.ActiveEmoji>
+      {hoveredEmoji ? (
+        <>
+          <div className="flex size-7 flex-none items-center justify-center text-lg">
+            {hoveredEmoji.emoji}
+          </div>
+          <span className="text-secondary-foreground truncate text-xs font-medium">
+            {hoveredEmoji.label}
+          </span>
+        </>
+      ) : (
+        <span className="text-muted-foreground ml-1.5 flex h-7 items-center truncate text-xs font-medium">
+          Select an emoji…
+        </span>
+      )}
     </div>
   );
 }
-
-export {
-  EmojiPicker,
-  EmojiPickerSearch,
-  EmojiPickerContentForwarded as EmojiPickerContent,
-  EmojiPickerFooter,
-  EmojiPickerRow,
-  EmojiPickerCategoryHeader,
-};

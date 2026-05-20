@@ -2,15 +2,16 @@
 
 import React, { useState, useRef, useEffect, useMemo } from "react";
 import { Clock, Smile, Leaf, Carrot, Activity, Plane, Lightbulb, CheckCircle2, Flag, LayoutGrid, Plus, SearchIcon, Shuffle } from "lucide-react";
+import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
 import * as LuIcons from "react-icons/lu";
 import * as PiIcons from "react-icons/pi";
 import * as RiIcons from "react-icons/ri";
+import emojiData from "emojibase-data/en/compact.json";
 import {
-  EmojiPicker,
-  EmojiPickerSearch,
-  EmojiPickerContent,
   EmojiPickerRow,
   EmojiPickerCategoryHeader,
+  EmojiPickerSkinTonePopup,
+  EmojiPickerFooter,
   emojiStyles
 } from "@/components/ui/emoji-picker";
 import {
@@ -42,16 +43,17 @@ const ICON_COLORS = [
   { name: "Red", color: "#d44c47" },
 ];
 
-const CATEGORY_MAP = [
-  { label: "Recents", icon: Clock },
-  { label: "Smileys", icon: Smile },
-  { label: "People", icon: Leaf },
-  { label: "Nature", icon: Carrot },
-  { label: "Food & Drink", icon: Activity },
-  { label: "Activity", icon: Plane },
-  { label: "Travel & Places", icon: Lightbulb },
-  { label: "Objects", icon: CheckCircle2 },
-  { label: "Symbols", icon: Flag },
+const EMOJI_CATEGORY_MAP = [
+  { label: "Recents", icon: Clock, groupId: -1 },
+  { label: "Smileys", icon: Smile, groupId: 0 },
+  { label: "People", icon: Leaf, groupId: 1 },
+  { label: "Nature", icon: Carrot, groupId: 3 },
+  { label: "Food & Drink", icon: Activity, groupId: 4 },
+  { label: "Activity", icon: Plane, groupId: 6 },
+  { label: "Travel & Places", icon: Lightbulb, groupId: 5 },
+  { label: "Objects", icon: CheckCircle2, groupId: 7 },
+  { label: "Symbols", icon: Flag, groupId: 8 },
+  { label: "Flags", icon: Flag, groupId: 9 },
 ];
 
 const ICON_CATEGORY_MAP = [
@@ -79,16 +81,112 @@ export function EmojiconPopover({
   const setIsOpen = controlledOnOpenChange || setInternalIsOpen;
 
   const [activeTab, setActiveTab] = useState<"emoji" | "icons" | "upload">("emoji");
-  const [activeCategory, setActiveCategory] = useState(0);
+  const [activeEmojiCategory, setActiveEmojiCategory] = useState(0);
+  const [activeIconCategory, setActiveIconCategory] = useState(0);
+  
   const [recentEmojis, setRecentEmojis] = useState<string[]>([]);
   const [recentIcons, setRecentIcons] = useState<string[]>([]);
-  const viewportRef = useRef<HTMLDivElement>(null);
+  
+  const emojiVirtuosoRef = useRef<VirtuosoHandle>(null);
+  const iconVirtuosoRef = useRef<VirtuosoHandle>(null);
 
+  const [emojiSearch, setEmojiSearch] = useState("");
   const [iconSearch, setIconSearch] = useState("");
   const [selectedColor, setSelectedColor] = useState(ICON_COLORS[0].color);
   const [askEveryTime, setAskEveryTime] = useState(true);
+  
+  const [currentTone, setCurrentTone] = useState<number | null>(null);
+  const [hoveredEmoji, setHoveredEmoji] = useState<{ emoji: string, label: string } | null>(null);
 
-  // Memoize all icons from all libraries
+  // --- Emoji Logic ---
+
+  const emojiLookup = useMemo(() => {
+    const map: Record<string, { label: string, variations?: any[] }> = {};
+    emojiData.forEach((e: any) => {
+      map[e.unicode] = { label: e.label, variations: e.variations };
+      if (e.variations) {
+        e.variations.forEach((v: any) => {
+          map[v.unicode] = { label: e.label };
+        });
+      }
+    });
+    return map;
+  }, []);
+
+  const getEmojiWithTone = (unicode: string) => {
+    if (!currentTone) return unicode;
+    const info = emojiLookup[unicode];
+    if (!info || !info.variations) return unicode;
+    
+    const modifier = (0x1F3FB + (currentTone - 1)).toString(16).toUpperCase();
+    const variation = info.variations.find((v: any) => v.hexcode.includes(modifier));
+    return variation ? variation.unicode : unicode;
+  };
+
+  const filteredEmojis = useMemo(() => {
+    const searchLower = emojiSearch.toLowerCase();
+    if (!searchLower) return emojiData;
+    return emojiData.filter((emoji: any) => 
+      emoji.label.toLowerCase().includes(searchLower) || 
+      (emoji.tags && emoji.tags.some((tag: string) => tag.toLowerCase().includes(searchLower)))
+    );
+  }, [emojiSearch]);
+
+  const virtualizedEmojis = useMemo(() => {
+    const items: any[] = [];
+    
+    // Add Recents if they exist
+    if (recentEmojis.length > 0 && emojiSearch === "") {
+      items.push({ type: 'header', label: 'Recents', isRecents: true });
+      for (let i = 0; i < recentEmojis.length; i += 12) {
+        items.push({ type: 'row', emojis: recentEmojis.slice(i, i + 12), isRecents: true });
+      }
+    }
+
+    // Group filtered emojis by category
+    const grouped: Record<number, any[]> = {};
+    filteredEmojis.forEach((emoji: any) => {
+      if (emoji.group === undefined) return;
+      const group = emoji.group;
+      if (!grouped[group]) grouped[group] = [];
+      grouped[group].push(emoji.unicode);
+    });
+
+    // Add sections in order of EMOJI_CATEGORY_MAP
+    EMOJI_CATEGORY_MAP.forEach(cat => {
+      if (cat.groupId === -1) return;
+      const emojis = grouped[cat.groupId];
+      if (emojis && emojis.length > 0) {
+        items.push({ type: 'header', label: cat.label, groupId: cat.groupId });
+        for (let i = 0; i < emojis.length; i += 12) {
+          items.push({ type: 'row', emojis: emojis.slice(i, i + 12) });
+        }
+      }
+    });
+
+    return items;
+  }, [filteredEmojis, recentEmojis, emojiSearch]);
+
+  const emojiCategoryIndices = useMemo(() => {
+    const indices: number[] = [];
+    virtualizedEmojis.forEach((item, index) => {
+      if (item.type === 'header') {
+        indices.push(index);
+      }
+    });
+    return indices;
+  }, [virtualizedEmojis]);
+
+  const displayEmojiCategories = useMemo(() => {
+    return EMOJI_CATEGORY_MAP.filter(cat => {
+      if (cat.label === "Recents") return recentEmojis.length > 0 && emojiSearch === "";
+      const hasEmojis = filteredEmojis.some((e: any) => e.group === cat.groupId);
+      return hasEmojis;
+    });
+  }, [recentEmojis, emojiSearch, filteredEmojis]);
+
+  // --- Icon Logic ---
+
   const allIconsByLib = useMemo(() => {
     const libs: Record<string, { prefix: IconLibKey; names: string[] }> = {};
     (Object.keys(ICON_LIBS) as IconLibKey[]).forEach(libKey => {
@@ -118,20 +216,62 @@ export function EmojiconPopover({
     [filteredIconsByLib]
   );
 
-  // Reset active category when tab changes
+  const virtualizedIcons = useMemo(() => {
+    const items: any[] = [];
+    
+    if (recentIcons.length > 0 && iconSearch === "") {
+      items.push({ type: 'header', label: 'Recents', isRecents: true });
+      for (let i = 0; i < recentIcons.length; i += 12) {
+        items.push({ type: 'row', icons: recentIcons.slice(i, i + 12), isRecents: true });
+      }
+    }
+
+    (Object.keys(ICON_LIBS) as IconLibKey[]).forEach(libKey => {
+      const icons = filteredIconsByLib[libKey];
+      if (icons.length > 0) {
+        items.push({ type: 'header', label: ICON_LIBS[libKey].label, libKey });
+        for (let i = 0; i < icons.length; i += 12) {
+          items.push({ type: 'row', icons: icons.slice(i, i + 12), libKey });
+        }
+      }
+    });
+
+    return items;
+  }, [filteredIconsByLib, recentIcons, iconSearch]);
+
+  const iconCategoryIndices = useMemo(() => {
+    const indices: number[] = [];
+    virtualizedIcons.forEach((item, index) => {
+      if (item.type === 'header') {
+        indices.push(index);
+      }
+    });
+    return indices;
+  }, [virtualizedIcons]);
+
+  const displayIconCategories = useMemo(() => {
+    const cats = recentIcons.length > 0 && iconSearch === "" ? [{ label: "Recents", icon: Clock }] : [];
+    (Object.keys(ICON_LIBS) as IconLibKey[]).forEach(libKey => {
+      if (filteredIconsByLib[libKey].length > 0) {
+        cats.push({ label: ICON_LIBS[libKey].label, icon: LayoutGrid });
+      }
+    });
+    return cats;
+  }, [recentIcons, iconSearch, filteredIconsByLib]);
+
+  // --- Shared Logic ---
+
   useEffect(() => {
-    setActiveCategory(0);
+    setActiveEmojiCategory(0);
+    setActiveIconCategory(0);
   }, [activeTab]);
 
-  // Load recently used emojis and icons from localStorage
   useEffect(() => {
     const savedEmojis = localStorage.getItem("recentEmojis");
     if (savedEmojis) {
       try {
         const parsed = JSON.parse(savedEmojis);
-        if (Array.isArray(parsed)) {
-          setRecentEmojis(parsed.slice(0, 24));
-        }
+        if (Array.isArray(parsed)) setRecentEmojis(parsed.slice(0, 24));
       } catch { }
     }
 
@@ -139,9 +279,7 @@ export function EmojiconPopover({
     if (savedIcons) {
       try {
         const parsed = JSON.parse(savedIcons);
-        if (Array.isArray(parsed)) {
-          setRecentIcons(parsed.slice(0, 24));
-        }
+        if (Array.isArray(parsed)) setRecentIcons(parsed.slice(0, 24));
       } catch { }
     }
 
@@ -150,9 +288,11 @@ export function EmojiconPopover({
 
     const savedAsk = localStorage.getItem("askEveryTime");
     if (savedAsk) setAskEveryTime(savedAsk === "true");
+
+    const savedTone = localStorage.getItem("selectedEmojiTone");
+    if (savedTone) setCurrentTone(savedTone === "null" ? null : parseInt(savedTone));
   }, []);
 
-  // Save recently used emojis to localStorage
   const addRecentEmoji = (emoji: string) => {
     setRecentEmojis((prev) => {
       const updated = [emoji, ...prev.filter((e) => e !== emoji)].slice(0, 24);
@@ -161,7 +301,6 @@ export function EmojiconPopover({
     });
   };
 
-  // Save recently used icons to localStorage
   const addRecentIcon = (iconName: string, prefix: string) => {
     const fullIconName = `${prefix}:${iconName}`;
     setRecentIcons((prev) => {
@@ -171,27 +310,21 @@ export function EmojiconPopover({
     });
   };
 
-  const handleColorChange = (color: string) => {
-    setSelectedColor(color);
-    localStorage.setItem("selectedIconColor", color);
-  };
-
-  const handleAskToggle = () => {
-    const newVal = !askEveryTime;
-    setAskEveryTime(newVal);
-    localStorage.setItem("askEveryTime", String(newVal));
+  const handleToneSelect = (tone: number | null) => {
+    setCurrentTone(tone);
+    localStorage.setItem("selectedEmojiTone", String(tone));
   };
 
   const clearRecentEmojis = () => {
     setRecentEmojis([]);
     localStorage.removeItem("recentEmojis");
-    setActiveCategory(0);
+    setActiveEmojiCategory(0);
   };
 
   const clearRecentIcons = () => {
     setRecentIcons([]);
     localStorage.removeItem("recentIcons");
-    setActiveCategory(0);
+    setActiveIconCategory(0);
   };
 
   const handleRandomEmoji = () => {
@@ -205,31 +338,24 @@ export function EmojiconPopover({
     const randomLibKey = libKeys[Math.floor(Math.random() * libKeys.length)];
     const libNames = allIconsByLib[randomLibKey].names;
     const randomIconName = libNames[Math.floor(Math.random() * libNames.length)];
-    
     addRecentIcon(randomIconName, randomLibKey);
     onEmojiconSelect(`${randomLibKey}:${randomIconName}:${selectedColor}`);
     setIsOpen(false);
   };
 
-  const displayCategories = recentEmojis.length > 0
-    ? CATEGORY_MAP
-    : CATEGORY_MAP.filter(c => c.label !== "Recents");
+  const scrollToEmojiCategory = (index: number) => {
+    setActiveEmojiCategory(index);
+    const targetIndex = emojiCategoryIndices[index];
+    if (targetIndex !== undefined) {
+      emojiVirtuosoRef.current?.scrollToIndex({ index: targetIndex, align: 'start', behavior: 'smooth' });
+    }
+  };
 
-  const iconCategories = useMemo(() => {
-    const cats = recentIcons.length > 0 ? [{ label: "Recents", icon: Clock }] : [];
-    (Object.keys(ICON_LIBS) as IconLibKey[]).forEach(libKey => {
-      cats.push({ label: ICON_LIBS[libKey].label, icon: LayoutGrid });
-    });
-    return cats;
-  }, [recentIcons]);
-
-  const scrollToCategory = (categoryIndex: number) => {
-    setActiveCategory(categoryIndex);
-    if (!viewportRef.current) return;
-
-    const headers = viewportRef.current.querySelectorAll('[data-slot="emoji-picker-category-header"]');
-    if (headers[categoryIndex]) {
-      headers[categoryIndex].scrollIntoView({ behavior: "smooth", block: "start" });
+  const scrollToIconCategory = (index: number) => {
+    setActiveIconCategory(index);
+    const targetIndex = iconCategoryIndices[index];
+    if (targetIndex !== undefined) {
+      iconVirtuosoRef.current?.scrollToIndex({ index: targetIndex, align: 'start', behavior: 'smooth' });
     }
   };
 
@@ -238,7 +364,7 @@ export function EmojiconPopover({
       <PopoverTrigger render={React.isValidElement(children) ? children : <button>{children}</button>} />
       <PopoverContent className="w-[400px] p-0 shadow-xl rounded-lg overflow-hidden flex flex-col bg-white" align="start" sideOffset={8}>
 
-        {/* Notion-style Tabs Header */}
+        {/* Tabs Header */}
         <div className="flex items-center justify-between px-3 pt-3 border-b border-border bg-white">
           <div className="flex gap-4 px-1">
             <button
@@ -261,10 +387,7 @@ export function EmojiconPopover({
             </button>
           </div>
           {onRemove && (
-            <button
-              onClick={() => { onRemove(); }}
-              className="text-[13px] font-medium text-muted-foreground hover:text-foreground transition-colors pb-1.5"
-            >
+            <button onClick={onRemove} className="text-[13px] font-medium text-muted-foreground hover:text-foreground transition-colors pb-1.5">
               Remove
             </button>
           )}
@@ -273,62 +396,93 @@ export function EmojiconPopover({
         {/* Content Area */}
         <div className="h-[380px] w-full flex flex-col">
           {activeTab === "emoji" && (
-            <EmojiPicker
-              onEmojiSelect={(emojiconValue) => {
-                addRecentEmoji(emojiconValue.emoji);
-                onEmojiconSelect(emojiconValue.emoji);
-                setIsOpen(false);
-              }}
-              className="w-full h-full border-none shadow-none rounded-none bg-transparent"
-            >
-              <EmojiPickerSearch onRandom={handleRandomEmoji} />
+            <div className="w-full h-full flex flex-col bg-transparent">
+              <div className="flex h-12 items-center gap-2 px-3 pt-2 pb-2">
+                <div className="relative flex-1 flex items-center">
+                  <SearchIcon className="absolute left-2.5 size-4 opacity-50 text-muted-foreground" />
+                  <input
+                    type="text"
+                    value={emojiSearch}
+                    onChange={(e) => setEmojiSearch(e.target.value)}
+                    className="outline-hidden placeholder:text-muted-foreground flex h-9 w-full rounded-[6px] border-[1.5px] border-[#3b82f6] bg-transparent pl-8 pr-3 text-sm focus-visible:outline-none focus:border-[#3b82f6] transition-colors"
+                    placeholder="Search emojis..."
+                    autoFocus
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={handleRandomEmoji}
+                  className="flex items-center justify-center size-8 hover:bg-accent rounded-md text-muted-foreground hover:text-foreground transition-colors shrink-0 border border-border"
+                  title="Random Emoji"
+                >
+                  <Shuffle className="w-4 h-4" />
+                </button>
+                <EmojiPickerSkinTonePopup currentTone={currentTone} onToneSelect={handleToneSelect} />
+              </div>
 
-              <EmojiPickerContent ref={viewportRef} className="overflow-y-auto w-full">
-                {recentEmojis.length > 0 && (
-                  <div id="recents-section" className="w-full shrink-0">
-                    <EmojiPickerCategoryHeader
-                      category={{ label: "Recents" }}
-                    >
-                      <button
-                        onClick={clearRecentEmojis}
-                        className="text-[11px] font-medium text-muted-foreground hover:text-foreground hover:bg-accent px-1.5 py-0.5 rounded transition-colors"
-                      >
-                        Clear
-                      </button>
-                    </EmojiPickerCategoryHeader>
-                    <EmojiPickerRow className="flex-wrap w-full pb-2">
-                      {recentEmojis.map((emoji, idx) => (
-                        <button
-                          key={idx}
-                          onClick={() => {
-                            addRecentEmoji(emoji);
-                            onEmojiconSelect(emoji);
-                            setIsOpen(false);
-                          }}
-                          style={{ "--emoji": `"${emoji}"` } as React.CSSProperties}
-                          className={emojiStyles}
-                        >
-                          {emoji}
-                        </button>
-                      ))}
-                    </EmojiPickerRow>
+              <div className="flex-1 min-h-0 flex flex-col relative" onMouseLeave={() => setHoveredEmoji(null)}>
+                {filteredEmojis.length === 0 && emojiSearch !== "" ? (
+                  <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
+                    No emoji found.
                   </div>
-                )}
-              </EmojiPickerContent>
+                ) : (
+                  <Virtuoso
+                    ref={emojiVirtuosoRef}
+                    data={virtualizedEmojis}
+                    className="flex-1 no-scrollbar"
+                    itemContent={(index, item) => {
+                      if (item.type === 'header') {
+                        return (
+                          <EmojiPickerCategoryHeader category={{ label: item.label }}>
+                            {item.isRecents && (
+                              <button onClick={clearRecentEmojis} className="text-[11px] font-medium text-muted-foreground hover:text-foreground hover:bg-accent px-1.5 py-0.5 rounded transition-colors">
+                                Clear
+                              </button>
+                            )}
+                          </EmojiPickerCategoryHeader>
+                        );
+                      }
 
-              {/* Bottom Navigation */}
+                      return (
+                        <EmojiPickerRow className="flex-wrap w-full pb-2">
+                          {item.emojis.map((unicode: string, idx: number) => {
+                            const displayEmoji = item.isRecents ? unicode : getEmojiWithTone(unicode);
+                            const info = emojiLookup[displayEmoji] || emojiLookup[unicode];
+                            
+                            return (
+                              <button
+                                key={`${index}-${idx}`}
+                                onMouseEnter={() => setHoveredEmoji({ emoji: displayEmoji, label: info?.label || "" })}
+                                onClick={() => {
+                                  addRecentEmoji(displayEmoji);
+                                  onEmojiconSelect(displayEmoji);
+                                  setIsOpen(false);
+                                }}
+                                style={{ "--emoji": `"${displayEmoji}"` } as React.CSSProperties}
+                                className={emojiStyles}
+                              >
+                                {displayEmoji}
+                              </button>
+                            );
+                          })}
+                        </EmojiPickerRow>
+                      );
+                    }}
+                  />
+                )}
+              </div>
+
+              <EmojiPickerFooter hoveredEmoji={hoveredEmoji} />
+
               <div className="flex items-center justify-between px-3 py-[6px] border-t border-border bg-white mt-auto overflow-x-auto no-scrollbar">
                 <div className="flex items-center gap-1.5 text-muted-foreground">
-                  {displayCategories.map((category, index) => {
+                  {displayEmojiCategories.map((category, index) => {
                     const IconComponent = category.icon;
                     return (
                       <button
                         key={index}
-                        onClick={() => scrollToCategory(index)}
-                        className={`p-1.5 rounded-md transition-colors shrink-0 ${activeCategory === index
-                          ? 'bg-accent/50 text-foreground'
-                          : 'hover:bg-accent hover:text-foreground'
-                          }`}
+                        onClick={() => scrollToEmojiCategory(index)}
+                        className={`p-1.5 rounded-md transition-colors shrink-0 ${activeEmojiCategory === index ? 'bg-accent/50 text-foreground' : 'hover:bg-accent hover:text-foreground'}`}
                         title={category.label}
                       >
                         <IconComponent className="w-4 h-4" />
@@ -338,7 +492,7 @@ export function EmojiconPopover({
                   <button className="p-[5px] hover:bg-black/10 bg-black/5 text-muted-foreground rounded-full transition-colors ml-1 shrink-0"><Plus className="w-[18px] h-[18px]" /></button>
                 </div>
               </div>
-            </EmojiPicker>
+            </div>
           )}
 
           {activeTab === "icons" && (
@@ -350,7 +504,7 @@ export function EmojiconPopover({
                     type="text"
                     value={iconSearch}
                     onChange={(e) => setIconSearch(e.target.value)}
-                    className="outline-hidden placeholder:text-muted-foreground flex h-9 w-full rounded-[6px] border-[1.5px] border-[#3b82f6] bg-transparent pl-8 pr-3 text-sm focus-visible:outline-none focus:border-[#3b82f6] disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
+                    className="outline-hidden placeholder:text-muted-foreground flex h-9 w-full rounded-[6px] border-[1.5px] border-[#3b82f6] bg-transparent pl-8 pr-3 text-sm focus-visible:outline-none focus:border-[#3b82f6] transition-colors"
                     placeholder="Filter icons..."
                     autoFocus
                   />
@@ -368,14 +522,8 @@ export function EmojiconPopover({
                   <Popover>
                     <PopoverTrigger
                       render={
-                        <button
-                          className="flex items-center justify-center size-8 hover:bg-accent rounded-md shrink-0 border border-border transition-colors"
-                          title="Change Color"
-                        >
-                          <div
-                            className="size-3.5 rounded-full ring-1 ring-border"
-                            style={{ backgroundColor: selectedColor }}
-                          />
+                        <button className="flex items-center justify-center size-8 hover:bg-accent rounded-md shrink-0 border border-border transition-colors" title="Change Color">
+                          <div className="size-3.5 rounded-full ring-1 ring-border" style={{ backgroundColor: selectedColor }} />
                         </button>
                       }
                     />
@@ -384,21 +532,18 @@ export function EmojiconPopover({
                         {ICON_COLORS.map((c) => (
                           <button
                             key={c.name}
-                            onClick={() => handleColorChange(c.color)}
+                            onClick={() => { setSelectedColor(c.color); localStorage.setItem("selectedIconColor", c.color); }}
                             className={`flex items-center justify-center size-8 hover:bg-accent rounded-md shrink-0 transition-colors cursor-pointer ${selectedColor === c.color ? 'bg-accent' : ''}`}
                             title={c.name}
                           >
-                            <div 
-                              className="size-3.5 rounded-full ring-1 ring-border" 
-                              style={{ backgroundColor: c.color }} 
-                            />
+                            <div className="size-3.5 rounded-full ring-1 ring-border" style={{ backgroundColor: c.color }} />
                           </button>
                         ))}
                       </div>
                       <div className="flex items-center justify-between p-1 border-t border-border">
                         <span className="text-[13px] pr-2 text-[#37352f]/70 font-medium">Ask every time</span>
                         <button
-                          onClick={handleAskToggle}
+                          onClick={() => { const newVal = !askEveryTime; setAskEveryTime(newVal); localStorage.setItem("askEveryTime", String(newVal)); }}
                           className={`w-8 h-4 rounded-full relative transition-colors cursor-pointer ${askEveryTime ? 'bg-blue-500' : 'bg-[#efefed]'}`}
                         >
                           <div className={`absolute top-0.5 size-3 bg-white rounded-full shadow-sm transition-all ${askEveryTime ? 'right-0.5' : 'left-0.5'}`} />
@@ -409,35 +554,52 @@ export function EmojiconPopover({
                 </div>
               </div>
               
-              <div ref={viewportRef} className="overflow-y-auto w-full flex-1 pb-2 scroll-smooth">
+              <div className="flex-1 min-h-0 flex flex-col relative">
                 {!hasAnyIcons ? (
                   <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
                     No icon found.
                   </div>
                 ) : (
-                  <>
-                    {recentIcons.length > 0 && iconSearch === "" && (
-                      <div className="w-full shrink-0">
-                        <EmojiPickerCategoryHeader category={{ label: "Recents" }}>
-                          <button
-                            onClick={clearRecentIcons}
-                            className="text-[11px] font-medium text-muted-foreground hover:text-foreground hover:bg-accent px-1.5 py-0.5 rounded transition-colors"
-                          >
-                            Clear
-                          </button>
-                        </EmojiPickerCategoryHeader>
-                        <div className="grid grid-cols-12 gap-0 px-1 pb-2">
-                          {recentIcons.map((fullIconName) => {
-                            const parts = fullIconName.split(":");
-                            const prefix = parts.length > 1 ? parts[0] as IconLibKey : "lu";
-                            const iconName = parts.length > 1 ? parts[1] : parts[0];
-                            
+                  <Virtuoso
+                    ref={iconVirtuosoRef}
+                    data={virtualizedIcons}
+                    className="flex-1 no-scrollbar"
+                    itemContent={(index, item) => {
+                      if (item.type === 'header') {
+                        return (
+                          <EmojiPickerCategoryHeader category={{ label: item.label }}>
+                            {item.isRecents && (
+                              <button onClick={clearRecentIcons} className="text-[11px] font-medium text-muted-foreground hover:text-foreground hover:bg-accent px-1.5 py-0.5 rounded transition-colors">
+                                Clear
+                              </button>
+                            )}
+                          </EmojiPickerCategoryHeader>
+                        );
+                      }
+
+                      return (
+                        <div className="grid grid-cols-12 gap-0 px-1">
+                          {item.icons.map((fullIconNameOrName: string) => {
+                            let prefix: IconLibKey;
+                            let iconName: string;
+
+                            if (item.isRecents) {
+                              const parts = fullIconNameOrName.split(":");
+                              prefix = parts.length > 1 ? parts[0] as IconLibKey : "lu";
+                              iconName = parts.length > 1 ? parts[1] : parts[0];
+                            } else {
+                              prefix = item.libKey;
+                              iconName = fullIconNameOrName;
+                            }
+
                             const lib = ICON_LIBS[prefix] || ICON_LIBS.lu;
-                            const IconComponent = lib.icons[iconName as keyof typeof lib.icons] as React.ComponentType<any>;
+                            const libIcons = lib.icons as Record<string, any>;
+                            const IconComponent = libIcons[iconName] as React.ComponentType<any>;
                             if (!IconComponent) return null;
+                            
                             return (
                               <button
-                                key={`recent-${fullIconName}`}
+                                key={`${prefix}:${iconName}`}
                                 onClick={() => {
                                   addRecentIcon(iconName, prefix);
                                   onEmojiconSelect(`${prefix}:${iconName}:${selectedColor}`);
@@ -448,61 +610,25 @@ export function EmojiconPopover({
                               >
                                 <IconComponent className="w-4.5 h-4.5 transition-colors duration-300" style={{ color: selectedColor }} />
                               </button>
-                            )
+                            );
                           })}
                         </div>
-                      </div>
-                    )}
-                    
-                    {(Object.keys(ICON_LIBS) as IconLibKey[]).map(libKey => {
-                      const icons = filteredIconsByLib[libKey];
-                      if (icons.length === 0) return null;
-                      
-                      return (
-                        <div key={libKey} className="w-full shrink-0">
-                          <EmojiPickerCategoryHeader category={{ label: ICON_LIBS[libKey].label }} />
-                          <div className="grid grid-cols-12 gap-0 px-1">
-                            {icons.map((iconName) => {
-                              const lib = ICON_LIBS[libKey];
-                              const IconComponent = lib.icons[iconName as keyof typeof lib.icons] as React.ComponentType<any>;
-                              if (!IconComponent) return null;
-                              return (
-                                <button
-                                  key={`${libKey}-${iconName}`}
-                                  onClick={() => {
-                                    addRecentIcon(iconName, libKey);
-                                    onEmojiconSelect(`${libKey}:${iconName}:${selectedColor}`);
-                                    setIsOpen(false);
-                                  }}
-                                  className="flex size-8 items-center justify-center rounded-md hover:bg-accent hover:text-accent-foreground transition-colors text-muted-foreground shrink-0"
-                                  title={iconName}
-                                >
-                                  <IconComponent className="w-4.5 h-4.5 transition-colors duration-300" style={{ color: selectedColor }} />
-                                </button>
-                              )
-                            })}
-                          </div>
-                        </div>
                       );
-                    })}
-                  </>
+                    }}
+                  />
                 )}
               </div>
 
-              {/* Bottom Navigation */}
               <div className="flex items-center justify-between px-3 py-[6px] border-t border-border bg-white mt-auto overflow-x-auto no-scrollbar">
                 <div className="flex items-center gap-1.5 text-muted-foreground">
-                  {iconCategories.map((category, index) => {
+                  {displayIconCategories.map((category, index) => {
                     const isRecents = category.label === "Recents";
                     const IconComponent = category.icon;
                     return (
                       <button
                         key={index}
-                        onClick={() => scrollToCategory(index)}
-                        className={`rounded-md transition-colors shrink-0 font-medium ${activeCategory === index
-                          ? 'bg-accent/50 text-foreground'
-                          : 'hover:bg-accent hover:text-foreground'
-                          } ${isRecents ? 'p-1.5' : 'px-2 py-1 text-[11px]'}`}
+                        onClick={() => scrollToIconCategory(index)}
+                        className={`rounded-md transition-colors shrink-0 font-medium ${activeIconCategory === index ? 'bg-accent/50 text-foreground' : 'hover:bg-accent hover:text-foreground'} ${isRecents ? 'p-1.5' : 'px-2 py-1 text-[11px]'}`}
                         title={category.label}
                       >
                         {isRecents ? <IconComponent className="w-4 h-4" /> : category.label}
