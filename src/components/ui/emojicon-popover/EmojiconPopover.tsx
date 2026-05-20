@@ -101,11 +101,11 @@ export function EmojiconPopover({
   // --- Emoji Logic ---
 
   const emojiLookup = useMemo(() => {
-    const map: Record<string, { label: string, variations?: any[] }> = {};
+    const map: Record<string, { label: string, skins?: any[] }> = {};
     emojiData.forEach((e: any) => {
-      map[e.unicode] = { label: e.label, variations: e.variations };
-      if (e.variations) {
-        e.variations.forEach((v: any) => {
+      map[e.unicode] = { label: e.label, skins: e.skins };
+      if (e.skins) {
+        e.skins.forEach((v: any) => {
           map[v.unicode] = { label: e.label };
         });
       }
@@ -116,10 +116,10 @@ export function EmojiconPopover({
   const getEmojiWithTone = (unicode: string) => {
     if (!currentTone) return unicode;
     const info = emojiLookup[unicode];
-    if (!info || !info.variations) return unicode;
+    if (!info || !info.skins) return unicode;
     
     const modifier = (0x1F3FB + (currentTone - 1)).toString(16).toUpperCase();
-    const variation = info.variations.find((v: any) => v.hexcode.includes(modifier));
+    const variation = info.skins.find((v: any) => v.hexcode.includes(modifier));
     return variation ? variation.unicode : unicode;
   };
 
