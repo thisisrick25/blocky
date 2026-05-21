@@ -26,9 +26,7 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <TooltipProvider>
-          <SidebarProvider>
-            {children}
-          </SidebarProvider>
+          <SidebarProvider>{children}</SidebarProvider>
         </TooltipProvider>
       </body>
     </html>
