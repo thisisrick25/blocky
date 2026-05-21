@@ -14,6 +14,26 @@ const Editor = dynamic(() => import("@/components/Editor"), {
   ssr: false,
 });
 
+function DocHeaderButton({
+  icon: Icon,
+  children,
+  onClick,
+}: {
+  icon: React.ElementType;
+  children: React.ReactNode;
+  onClick?: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className="flex items-center gap-1.5 text-sm text-[#37352f]/50 hover:text-[#37352f]/80 hover:bg-[#efefed] px-2 py-1 rounded-[4px] transition-colors outline-none cursor-pointer"
+    >
+      <Icon className="w-4 h-4" />
+      <span>{children}</span>
+    </button>
+  );
+}
+
 export default function Home() {
   const [aiContext, setAiContext] = useState<string | null>(null);
   const editorRef = useRef<BlockNoteEditor | null>(null);
@@ -53,28 +73,21 @@ export default function Home() {
             {/* Action Buttons (visible on hover) */}
             <div className="flex items-center gap-4 mb-4 opacity-0 group-hover/page:opacity-100 transition-opacity duration-200">
               {!emojicon && (
-                <button
+                <DocHeaderButton
+                  icon={SmilePlus}
                   onClick={() => {
                     const randomEmoji = RANDOM_EMOJIS[Math.floor(Math.random() * RANDOM_EMOJIS.length)];
                     setEmojicon(randomEmoji);
                     setIsEmojiconPickerOpen(true);
                   }}
-                  className="flex items-center gap-1.5 text-sm text-[#37352f]/50 hover:text-[#37352f]/80 hover:bg-[#efefed] px-2 py-1 rounded-[4px] transition-colors outline-none cursor-pointer"
                 >
-                  <SmilePlus className="w-4 h-4" />
-                  <span>Add icon</span>
-                </button>
+                  Add emojicon
+                </DocHeaderButton>
               )}
 
-              <button className="flex items-center gap-1.5 text-sm text-[#37352f]/50 hover:text-[#37352f]/80 hover:bg-[#efefed] px-2 py-1 rounded-[4px] transition-colors outline-none cursor-pointer">
-                <ImageIcon className="w-4 h-4" />
-                <span>Add cover</span>
-              </button>
+              <DocHeaderButton icon={ImageIcon}>Add cover</DocHeaderButton>
 
-              <button className="flex items-center gap-1.5 text-sm text-[#37352f]/50 hover:text-[#37352f]/80 hover:bg-[#efefed] px-2 py-1 rounded-[4px] transition-colors outline-none cursor-pointer">
-                <MessageSquare className="w-4 h-4" />
-                <span>Add comment</span>
-              </button>
+              <DocHeaderButton icon={MessageSquare}>Add comment</DocHeaderButton>
             </div>
             {/* Emoji Icon */}
             {emojicon && (
