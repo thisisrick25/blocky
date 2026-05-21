@@ -51,6 +51,12 @@ export default function Home() {
     }
   };
 
+  const handleAddEmoji = () => {
+    const randomEmoji = RANDOM_EMOJIS[Math.floor(Math.random() * RANDOM_EMOJIS.length)];
+    setEmojicon(randomEmoji);
+    setIsEmojiconPickerOpen(true);
+  };
+
   return (
     <>
       <AppSidebar emojicon={emojicon || "📄"} docTitle={docTitle} />
@@ -75,11 +81,7 @@ export default function Home() {
               {!emojicon && (
                 <DocHeaderButton
                   icon={SmilePlus}
-                  onClick={() => {
-                    const randomEmoji = RANDOM_EMOJIS[Math.floor(Math.random() * RANDOM_EMOJIS.length)];
-                    setEmojicon(randomEmoji);
-                    setIsEmojiconPickerOpen(true);
-                  }}
+                  onClick={handleAddEmoji}
                 >
                   Add emojicon
                 </DocHeaderButton>
