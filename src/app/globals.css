@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap");
 @import "tailwindcss";
 
 @theme {
@@ -31,12 +31,19 @@
   --border: #edece9;
 }
 
-body, button, input, select, textarea {
+body {
   font-family: "Apple Color Emoji", "Noto Color Emoji", var(--font-sans);
   color: var(--foreground);
   background-color: var(--background);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: "Apple Color Emoji", "Noto Color Emoji", var(--font-sans);
 }
 
 ::-webkit-scrollbar {
@@ -58,8 +65,8 @@ body, button, input, select, textarea {
 }
 
 .bn-container {
-  font-family: "Apple Color Emoji", "Noto Color Emoji", var(--font-sans) !important;
-  color: var(--foreground) !important;
+  font-family: "Apple Color Emoji", "Noto Color Emoji", var(--font-sans);
+  color: var(--foreground);
 }
 
 .bn-editor h1 {
