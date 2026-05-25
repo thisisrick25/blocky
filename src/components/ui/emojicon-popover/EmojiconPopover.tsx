@@ -429,7 +429,7 @@ export function EmojiconPopover({
                   <Virtuoso
                     ref={emojiVirtuosoRef}
                     data={virtualizedEmojis}
-                    className="flex-1 no-scrollbar"
+                    className="flex-1"
                     itemContent={(index, item) => {
                       if (item.type === 'header') {
                         return (
@@ -563,7 +563,7 @@ export function EmojiconPopover({
                   <Virtuoso
                     ref={iconVirtuosoRef}
                     data={virtualizedIcons}
-                    className="flex-1 no-scrollbar"
+                    className="flex-1"
                     itemContent={(index, item) => {
                       if (item.type === 'header') {
                         return (
