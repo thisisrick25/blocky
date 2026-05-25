@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect, useMemo } from "react";
-import { Clock, Smile, Leaf, Carrot, Activity, Plane, Lightbulb, CheckCircle2, Flag, LayoutGrid, Plus, SearchIcon, Shuffle } from "lucide-react";
+import { Clock, Smile, User, Leaf, Coffee, Activity, Plane, Lightbulb, Hash, Flag, LayoutGrid, Plus, SearchIcon, Shuffle } from "lucide-react";
 import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
 import * as LuIcons from "react-icons/lu";
 import * as PiIcons from "react-icons/pi";
@@ -46,13 +46,13 @@ const ICON_COLORS = [
 const EMOJI_CATEGORY_MAP = [
   { label: "Recents", icon: Clock, groupId: -1 },
   { label: "Smileys", icon: Smile, groupId: 0 },
-  { label: "People", icon: Leaf, groupId: 1 },
-  { label: "Nature", icon: Carrot, groupId: 3 },
-  { label: "Food & Drink", icon: Activity, groupId: 4 },
-  { label: "Activity", icon: Plane, groupId: 6 },
-  { label: "Travel & Places", icon: Lightbulb, groupId: 5 },
-  { label: "Objects", icon: CheckCircle2, groupId: 7 },
-  { label: "Symbols", icon: Flag, groupId: 8 },
+  { label: "People", icon: User, groupId: 1 },
+  { label: "Nature", icon: Leaf, groupId: 3 },
+  { label: "Food & Drink", icon: Coffee, groupId: 4 },
+  { label: "Activity", icon: Activity, groupId: 6 },
+  { label: "Travel & Places", icon: Plane, groupId: 5 },
+  { label: "Objects", icon: Lightbulb, groupId: 7 },
+  { label: "Symbols", icon: Hash, groupId: 8 },
   { label: "Flags", icon: Flag, groupId: 9 },
 ];
 
@@ -83,10 +83,10 @@ export function EmojiconPopover({
   const [activeTab, setActiveTab] = useState<"emoji" | "icons" | "upload">("emoji");
   const [activeEmojiCategory, setActiveEmojiCategory] = useState(0);
   const [activeIconCategory, setActiveIconCategory] = useState(0);
-  
+
   const [recentEmojis, setRecentEmojis] = useState<string[]>([]);
   const [recentIcons, setRecentIcons] = useState<string[]>([]);
-  
+
   const emojiVirtuosoRef = useRef<VirtuosoHandle>(null);
   const iconVirtuosoRef = useRef<VirtuosoHandle>(null);
 
@@ -94,7 +94,7 @@ export function EmojiconPopover({
   const [iconSearch, setIconSearch] = useState("");
   const [selectedColor, setSelectedColor] = useState(ICON_COLORS[0].color);
   const [askEveryTime, setAskEveryTime] = useState(true);
-  
+
   const [currentTone, setCurrentTone] = useState<number | null>(null);
   const [hoveredEmoji, setHoveredEmoji] = useState<{ emoji: string, label: string } | null>(null);
 
@@ -117,7 +117,7 @@ export function EmojiconPopover({
     if (!currentTone) return unicode;
     const info = emojiLookup[unicode];
     if (!info || !info.skins) return unicode;
-    
+
     const modifier = (0x1F3FB + (currentTone - 1)).toString(16).toUpperCase();
     const variation = info.skins.find((v: any) => v.hexcode.includes(modifier));
     return variation ? variation.unicode : unicode;
@@ -126,15 +126,15 @@ export function EmojiconPopover({
   const filteredEmojis = useMemo(() => {
     const searchLower = emojiSearch.toLowerCase();
     if (!searchLower) return emojiData;
-    return emojiData.filter((emoji: any) => 
-      emoji.label.toLowerCase().includes(searchLower) || 
+    return emojiData.filter((emoji: any) =>
+      emoji.label.toLowerCase().includes(searchLower) ||
       (emoji.tags && emoji.tags.some((tag: string) => tag.toLowerCase().includes(searchLower)))
     );
   }, [emojiSearch]);
 
   const virtualizedEmojis = useMemo(() => {
     const items: any[] = [];
-    
+
     // Add Recents if they exist
     if (recentEmojis.length > 0 && emojiSearch === "") {
       items.push({ type: 'header', label: 'Recents', isRecents: true });
@@ -202,23 +202,23 @@ export function EmojiconPopover({
   const filteredIconsByLib = useMemo(() => {
     const filtered: Record<string, string[]> = {};
     const searchLower = iconSearch.toLowerCase();
-    
+
     (Object.keys(allIconsByLib) as IconLibKey[]).forEach(libKey => {
-      filtered[libKey] = allIconsByLib[libKey].names.filter(name => 
+      filtered[libKey] = allIconsByLib[libKey].names.filter(name =>
         name.toLowerCase().includes(searchLower)
       );
     });
     return filtered;
   }, [allIconsByLib, iconSearch]);
 
-  const hasAnyIcons = useMemo(() => 
+  const hasAnyIcons = useMemo(() =>
     Object.values(filteredIconsByLib).some(icons => icons.length > 0),
     [filteredIconsByLib]
   );
 
   const virtualizedIcons = useMemo(() => {
     const items: any[] = [];
-    
+
     if (recentIcons.length > 0 && iconSearch === "") {
       items.push({ type: 'header', label: 'Recents', isRecents: true });
       for (let i = 0; i < recentIcons.length; i += 12) {
@@ -448,7 +448,7 @@ export function EmojiconPopover({
                           {item.emojis.map((unicode: string, idx: number) => {
                             const displayEmoji = item.isRecents ? unicode : getEmojiWithTone(unicode);
                             const info = emojiLookup[displayEmoji] || emojiLookup[unicode];
-                            
+
                             return (
                               <button
                                 key={`${index}-${idx}`}
@@ -553,7 +553,7 @@ export function EmojiconPopover({
                   </Popover>
                 </div>
               </div>
-              
+
               <div className="flex-1 min-h-0 flex flex-col relative">
                 {!hasAnyIcons ? (
                   <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
@@ -596,7 +596,7 @@ export function EmojiconPopover({
                             const libIcons = lib.icons as Record<string, any>;
                             const IconComponent = libIcons[iconName] as React.ComponentType<any>;
                             if (!IconComponent) return null;
-                            
+
                             return (
                               <button
                                 key={`${prefix}:${iconName}`}
