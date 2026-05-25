@@ -20,7 +20,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-export const RANDOM_EMOJIS = ["😀", "😂", "🥰", "😎", "🤔", "🌈", "🔥", "✨", "🍀", "🍎", "🚀", "🎸", "🏀", "🌍", "🎉"];
+export const RANDOM_EMOJIS = emojiData.map((e: any) => e.unicode);
 
 const ICON_LIBS = {
   lu: { label: "Lucide", icons: LuIcons },
