@@ -409,15 +409,17 @@ export function EmojiconPopover({
                     autoFocus
                   />
                 </div>
-                <button
-                  type="button"
-                  onClick={handleRandomEmoji}
-                  className="flex items-center justify-center size-8 hover:bg-accent rounded-md text-muted-foreground hover:text-foreground transition-colors shrink-0 border border-border"
-                  title="Random Emoji"
-                >
-                  <Shuffle className="w-4 h-4" />
-                </button>
-                <EmojiPickerSkinTonePopup currentTone={currentTone} onToneSelect={handleToneSelect} />
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={handleRandomEmoji}
+                    className="flex items-center justify-center size-8 hover:bg-accent rounded-md text-muted-foreground hover:text-foreground transition-colors shrink-0 border border-border"
+                    title="Random Emoji"
+                  >
+                    <Shuffle className="w-4 h-4" />
+                  </button>
+                  <EmojiPickerSkinTonePopup currentTone={currentTone} onToneSelect={handleToneSelect} />
+                </div>
               </div>
 
               <div className="flex-1 min-h-0 flex flex-col relative" onMouseLeave={() => setHoveredEmoji(null)}>
