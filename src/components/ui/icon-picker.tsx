@@ -19,7 +19,7 @@ export const ICON_COLORS = [
   { name: "Red", color: "#d44c47" },
 ];
 
-interface IconColorPickerPopupProps {
+export interface IconColorPickerPopupProps {
   selectedColor: string;
   setSelectedColor: (color: string) => void;
   askEveryTime: boolean;
@@ -68,7 +68,9 @@ export function IconColorPickerPopup({
   );
 }
 
-export function IconPickerRow({ children, className, ...props }: React.ComponentProps<"div">) {
+export interface IconPickerRowProps extends React.ComponentProps<"div"> { }
+
+export function IconPickerRow({ children, className, ...props }: IconPickerRowProps) {
   return (
     <div
       {...props}
@@ -80,12 +82,16 @@ export function IconPickerRow({ children, className, ...props }: React.Component
   );
 }
 
+export interface IconPickerCategoryHeaderProps extends React.ComponentProps<"div"> {
+  category: { label: string };
+}
+
 export function IconPickerCategoryHeader({
   category,
   className,
   children,
   ...props
-}: React.ComponentProps<"div"> & { category: { label: string }; children?: React.ReactNode }) {
+}: IconPickerCategoryHeaderProps) {
   return (
     <div
       {...props}
@@ -101,11 +107,20 @@ export function IconPickerCategoryHeader({
   );
 }
 
+export interface IconPickerFooterProps extends React.ComponentProps<"div"> {
+  hoveredIcon: {
+    iconName: string;
+    prefixLabel: string;
+    IconComponent?: React.ElementType;
+    color?: string;
+  } | null;
+}
+
 export function IconPickerFooter({
   hoveredIcon,
   className,
   ...props
-}: { hoveredIcon: { iconName: string, prefixLabel: string, IconComponent?: React.ElementType, color?: string } | null } & React.ComponentProps<"div">) {
+}: IconPickerFooterProps) {
   return (
     <div
       className={cn(

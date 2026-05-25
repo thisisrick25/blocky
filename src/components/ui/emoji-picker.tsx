@@ -20,13 +20,15 @@ export const SKIN_TONES = [
   { label: "Dark", emoji: "✋🏿", tone: 5 },
 ];
 
-export function EmojiPickerSkinTonePopup({ 
-  currentTone, 
-  onToneSelect 
-}: { 
-  currentTone: number | null, 
-  onToneSelect: (tone: number | null) => void 
-}) {
+export interface EmojiPickerSkinTonePopupProps {
+  currentTone: number | null;
+  onToneSelect: (tone: number | null) => void;
+}
+
+export function EmojiPickerSkinTonePopup({
+  currentTone,
+  onToneSelect
+}: EmojiPickerSkinTonePopupProps) {
   const [open, setOpen] = useState(false);
   const currentEmoji = SKIN_TONES.find(s => s.tone === (currentTone || undefined))?.emoji || "✋";
 
@@ -60,7 +62,9 @@ export function EmojiPickerSkinTonePopup({
   );
 }
 
-export function EmojiPickerRow({ children, className, ...props }: React.ComponentProps<"div">) {
+export interface EmojiPickerRowProps extends React.ComponentProps<"div"> { }
+
+export function EmojiPickerRow({ children, className, ...props }: EmojiPickerRowProps) {
   return (
     <div
       {...props}
@@ -72,12 +76,16 @@ export function EmojiPickerRow({ children, className, ...props }: React.Componen
   );
 }
 
+export interface EmojiPickerCategoryHeaderProps extends React.ComponentProps<"div"> {
+  category: { label: string };
+}
+
 export function EmojiPickerCategoryHeader({
   category,
   className,
   children,
   ...props
-}: React.ComponentProps<"div"> & { category: { label: string }; children?: React.ReactNode }) {
+}: EmojiPickerCategoryHeaderProps) {
   return (
     <div
       {...props}
@@ -93,11 +101,15 @@ export function EmojiPickerCategoryHeader({
   );
 }
 
+export interface EmojiPickerFooterProps extends React.ComponentProps<"div"> {
+  hoveredEmoji: { emoji: string; label: string } | null;
+}
+
 export function EmojiPickerFooter({
   hoveredEmoji,
   className,
   ...props
-}: { hoveredEmoji: { emoji: string, label: string } | null } & React.ComponentProps<"div">) {
+}: EmojiPickerFooterProps) {
   return (
     <div
       className={cn(
