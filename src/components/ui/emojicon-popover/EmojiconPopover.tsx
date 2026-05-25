@@ -19,7 +19,14 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { IconColorPickerPopup, ICON_COLORS } from "@/components/ui/icon-picker";
+import {
+  ICON_COLORS,
+  IconPickerRow,
+  IconPickerCategoryHeader,
+  IconColorPickerPopup,
+  IconPickerFooter,
+  iconStyles
+} from "@/components/ui/icon-picker";
 
 export const RANDOM_EMOJIS = emojiData.map((e: any) => e.unicode);
 
@@ -80,6 +87,7 @@ export function EmojiconPopover({
 
   const [currentTone, setCurrentTone] = useState<number | null>(null);
   const [hoveredEmoji, setHoveredEmoji] = useState<{ emoji: string, label: string } | null>(null);
+  const [hoveredIcon, setHoveredIcon] = useState<{ iconName: string, prefixLabel: string, IconComponent?: React.ElementType, color?: string } | null>(null);
 
   // --- Emoji Logic ---
 
@@ -513,7 +521,7 @@ export function EmojiconPopover({
                 </div>
               </div>
 
-              <div className="flex-1 min-h-0 flex flex-col relative">
+              <div className="flex-1 min-h-0 flex flex-col relative" onMouseLeave={() => setHoveredIcon(null)}>
                 {!hasAnyIcons ? (
                   <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
                     No icon found.
@@ -526,18 +534,18 @@ export function EmojiconPopover({
                     itemContent={(index, item) => {
                       if (item.type === 'header') {
                         return (
-                          <EmojiPickerCategoryHeader category={{ label: item.label }}>
+                          <IconPickerCategoryHeader category={{ label: item.label }}>
                             {item.isRecents && (
                               <button onClick={clearRecentIcons} className="text-[11px] font-medium text-muted-foreground hover:text-foreground hover:bg-accent px-1.5 py-0.5 rounded transition-colors">
                                 Clear
                               </button>
                             )}
-                          </EmojiPickerCategoryHeader>
+                          </IconPickerCategoryHeader>
                         );
                       }
 
                       return (
-                        <div className="grid grid-cols-12 gap-0 px-1">
+                        <IconPickerRow>
                           {item.icons.map((fullIconNameOrName: string) => {
                             let prefix: IconLibKey;
                             let iconName: string;
@@ -559,24 +567,27 @@ export function EmojiconPopover({
                             return (
                               <button
                                 key={`${prefix}:${iconName}`}
+                                onMouseEnter={() => setHoveredIcon({ iconName, prefixLabel: lib.label, IconComponent, color: selectedColor })}
                                 onClick={() => {
                                   addRecentIcon(iconName, prefix);
                                   onEmojiconSelect(`${prefix}:${iconName}:${selectedColor}`);
                                   setIsOpen(false);
                                 }}
-                                className="flex size-8 items-center justify-center rounded-md hover:bg-accent hover:text-accent-foreground transition-colors text-muted-foreground shrink-0"
+                                className={iconStyles}
                                 title={iconName}
                               >
                                 <IconComponent className="w-4.5 h-4.5 transition-colors duration-300" style={{ color: selectedColor }} />
                               </button>
                             );
                           })}
-                        </div>
+                        </IconPickerRow>
                       );
                     }}
                   />
                 )}
               </div>
+
+              <IconPickerFooter hoveredIcon={hoveredIcon} />
 
               <div className="flex items-center justify-between px-3 py-[6px] border-t border-border bg-white mt-auto overflow-x-auto no-scrollbar">
                 <div className="flex items-center gap-1.5 text-muted-foreground">
