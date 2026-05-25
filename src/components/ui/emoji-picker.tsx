@@ -1,6 +1,5 @@
 "use client";
 
-import { LoaderIcon, SearchIcon, Shuffle } from "lucide-react";
 import type * as React from "react";
 import { useState } from "react";
 
