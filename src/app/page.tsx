@@ -36,7 +36,7 @@ export default function Home() {
       <AppSidebar emojicon={emojicon || "lu:LuFileText"} docTitle={docTitle} />
       <SidebarInset className="flex flex-col flex-1 overflow-hidden bg-white">
         <DocNavbar docTitle={docTitle} emojicon={emojicon || "lu:LuFileText"} />
-        <div className="flex-1 overflow-auto bg-white flex flex-col group/page">
+        <div className="flex-1 overflow-auto bg-white flex flex-col">
           <DocHeader
             docTitle={docTitle}
             setDocTitle={setDocTitle}

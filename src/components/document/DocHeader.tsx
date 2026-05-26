@@ -31,10 +31,10 @@ export function DocHeader({
     };
 
     return (
-        <div className="w-full max-w-[800px] mx-auto px-4 sm:px-24 pt-16 pb-4">
+        <div className="w-full max-w-[800px] mx-auto px-4 sm:px-24 pt-16 pb-4 group/header">
             <div className="pl-[54px]">
                 {/* Action Buttons (visible on hover) */}
-                <div className="flex items-center gap-4 mb-4 opacity-0 group-hover/page:opacity-100 transition-opacity duration-200">
+                <div className="flex items-center gap-4 mb-4 opacity-0 group-hover/header:opacity-100 transition-opacity duration-200">
                     {!emojicon && (
                         <DocHeaderButton icon={LuSmilePlus} onClick={handleAddEmoji}>
                             Add emojicon
