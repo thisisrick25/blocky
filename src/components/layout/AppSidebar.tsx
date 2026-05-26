@@ -14,7 +14,7 @@ import {
 import { LuFileText, LuPlus, LuSearch, LuSettings } from "react-icons/lu";
 import { DocEmojicon } from "@/components/ui/DocEmojicon";
 
-export function AppSidebar({ emojicon = "📄", docTitle = "" }: { emojicon?: string, docTitle?: string }) {
+export function AppSidebar({ emojicon = "lu:LuFileText", docTitle = "" }: { emojicon?: string, docTitle?: string }) {
   return (
     <Sidebar variant="sidebar" collapsible="icon" className="border-r-0 bg-[#fbfbfa]">
       <SidebarHeader className="p-4 flex flex-row items-center gap-2 mt-2">

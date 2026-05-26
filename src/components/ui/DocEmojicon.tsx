@@ -8,7 +8,6 @@ const ICON_LIBRARIES: Record<string, any> = {
   lu: LuIcons,
   pi: PiIcons,
   ri: RiIcons,
-  lucide: LuIcons,
 };
 
 interface DocEmojiconProps {
@@ -44,7 +43,7 @@ export function DocEmojicon({ emojicon, className }: DocEmojiconProps) {
        // but react-icons/lu uses same names as lucide-react mostly.
     }
 
-    return <span className={className}>📄</span>;
+    return <LuIcons.LuFileText className={cn("w-full h-full", className)} />;
   }
 
   // Treat as emoji
