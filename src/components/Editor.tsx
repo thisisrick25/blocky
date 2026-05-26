@@ -32,10 +32,10 @@ export default function Editor({ onAskAi, onEditorReady }: EditorProps) {
 
   return (
     <div
-      className="flex flex-col items-center min-h-full pb-8 md:pb-16 pt-0 px-8 md:px-24 bg-white cursor-text"
+      className="w-full max-w-[800px] mx-auto px-4 sm:px-24 pb-8 md:pb-16 pt-0 bg-white cursor-text"
       onClick={() => editor?.focus()}
     >
-      <div className="w-full max-w-[900px] pb-[30vh]">
+      <div className="w-full pb-[30vh]">
         {/* We use a wrapper to ensure BlockNote perfectly matches the global styles */}
         <div className="prose-notion">
           <BlockNoteView editor={editor} theme="light" slashMenu={false}>
