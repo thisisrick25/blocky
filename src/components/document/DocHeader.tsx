@@ -1,5 +1,5 @@
 import React from "react";
-import { SmilePlus, Image as ImageIcon, MessageSquare } from "lucide-react";
+import { LuSmilePlus, LuImage, LuMessageSquare } from "react-icons/lu";
 import {
     EmojiconPopover,
     RANDOM_EMOJIS,
@@ -35,13 +35,13 @@ export function DocHeader({
             {/* Action Buttons (visible on hover) */}
             <div className="flex items-center gap-4 mb-4 opacity-0 group-hover/page:opacity-100 transition-opacity duration-200">
                 {!emojicon && (
-                    <DocHeaderButton icon={SmilePlus} onClick={handleAddEmoji}>
+                    <DocHeaderButton icon={LuSmilePlus} onClick={handleAddEmoji}>
                         Add emojicon
                     </DocHeaderButton>
                 )}
 
-                <DocHeaderButton icon={ImageIcon}>Add cover</DocHeaderButton>
-                <DocHeaderButton icon={MessageSquare}>Add comment</DocHeaderButton>
+                <DocHeaderButton icon={LuImage}>Add cover</DocHeaderButton>
+                <DocHeaderButton icon={LuMessageSquare}>Add comment</DocHeaderButton>
             </div>
 
             {/* Emoji Icon */}

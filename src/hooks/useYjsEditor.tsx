@@ -1,14 +1,14 @@
 "use client";
 
 import * as Y from "yjs";
-import { 
-  useCreateBlockNote, 
+import {
+  useCreateBlockNote,
   getDefaultReactSlashMenuItems,
 } from "@blocknote/react";
 import { useState, useEffect, useCallback } from "react";
 import { WebrtcProvider } from "y-webrtc";
 import { IndexeddbPersistence } from "y-indexeddb";
-import { Sparkles } from "lucide-react";
+import { LuSparkles } from "react-icons/lu";
 
 export function useYjsEditor(onAskAi?: (context: string) => void, roomId: string = "getting-started-room") {
   const [doc] = useState(() => new Y.Doc());
@@ -63,7 +63,7 @@ export function useYjsEditor(onAskAi?: (context: string) => void, roomId: string
           { type: "text", text: "Highlight any text, and use the menu that pops up to style ", styles: {} },
           { type: "text", text: "your", styles: { italic: true } },
           { type: "text", text: " writing ", styles: {} },
-          { type: "text", text: "however", styles: { textColor: "red", backgroundColor: "gray" } }, 
+          { type: "text", text: "however", styles: { textColor: "red", backgroundColor: "gray" } },
           { type: "text", text: " you ", styles: {} },
           { type: "text", text: "like", styles: { bold: true } }
         ],
@@ -125,7 +125,7 @@ export function useYjsEditor(onAskAi?: (context: string) => void, roomId: string
     },
     aliases: ["ai", "gpt", "sparkles"],
     group: "AI",
-    icon: <Sparkles className="w-4 h-4 text-purple-500" />,
+    icon: <LuSparkles className="w-4 h-4 text-purple-500" />,
     subtext: "Ask the AI assistant about this block.",
   };
 
@@ -137,11 +137,11 @@ export function useYjsEditor(onAskAi?: (context: string) => void, roomId: string
     return Y.encodeStateAsUpdate(doc);
   }, [doc]);
 
-  return { 
-    editor, 
-    doc, 
-    provider, 
-    getMarkdown, 
+  return {
+    editor,
+    doc,
+    provider,
+    getMarkdown,
     getYjsUpdate,
     slashMenuItems: [...getDefaultReactSlashMenuItems(editor), insertAiCommand]
   };

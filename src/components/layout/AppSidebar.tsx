@@ -11,7 +11,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { FileText, Plus, Search, Settings } from "lucide-react";
+import { LuFileText, LuPlus, LuSearch, LuSettings } from "react-icons/lu";
 import { DocEmojicon } from "@/components/ui/DocEmojicon";
 
 export function AppSidebar({ emojicon = "📄", docTitle = "" }: { emojicon?: string, docTitle?: string }) {
@@ -29,19 +29,19 @@ export function AppSidebar({ emojicon = "📄", docTitle = "" }: { emojicon?: st
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton tooltip="Search" className="hover:bg-[#efefed] text-[#37352f]/70">
-                  <Search className="w-4 h-4" />
+                  <LuSearch className="w-4 h-4" />
                   <span className="text-sm">Search</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton tooltip="Settings" className="hover:bg-[#efefed] text-[#37352f]/70">
-                  <Settings className="w-4 h-4" />
+                  <LuSettings className="w-4 h-4" />
                   <span className="text-sm">Settings</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton tooltip="New Page" className="hover:bg-[#efefed] text-[#37352f]/70">
-                  <Plus className="w-4 h-4" />
+                  <LuPlus className="w-4 h-4" />
                   <span className="text-sm">New Page</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>

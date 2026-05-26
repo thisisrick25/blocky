@@ -5,7 +5,7 @@ import {
   SidebarContent,
   SidebarHeader,
 } from "@/components/ui/sidebar";
-import { Sparkles, Send, Bot, Settings2, X, PlusCircle } from "lucide-react";
+import { LuSparkles, LuSend, LuBot, LuSettings2, LuX, LuCirclePlus } from "react-icons/lu";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -74,12 +74,12 @@ export function AiSidebar({ initialContext, onContextClear, onInsertBlocks }: Ai
     <Sidebar side="right" variant="sidebar" className="border-l border-[#f1f1ef] bg-[#fbfbfa]">
       <SidebarHeader className="p-4 flex flex-row items-center justify-between mt-2">
         <div className="flex items-center gap-2">
-          <Sparkles className="w-5 h-5 text-purple-500" />
+          <LuSparkles className="w-5 h-5 text-purple-500" />
           <span className="font-medium text-sm text-[#37352f]">Ask AI</span>
         </div>
         <div className="flex items-center gap-1">
           <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-[#efefed]" onClick={() => setShowSettings(!showSettings)}>
-            <Settings2 className="w-4 h-4 text-[#37352f]/60" />
+            <LuSettings2 className="w-4 h-4 text-[#37352f]/60" />
           </Button>
         </div>
       </SidebarHeader>
@@ -119,7 +119,7 @@ export function AiSidebar({ initialContext, onContextClear, onInsertBlocks }: Ai
                   return (
                     <div key={i} className={`flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
                       <div className={`w-6 h-6 rounded-[3px] flex items-center justify-center shrink-0 ${msg.role === 'assistant' ? 'bg-[#fbfbfa] text-[#37352f]/80' : 'bg-[#e1e1e1] text-[#37352f]'}`}>
-                        {msg.role === 'assistant' ? <Bot className="w-3.5 h-3.5" /> : <div className="text-[10px] font-bold">ME</div>}
+                        {msg.role === 'assistant' ? <LuBot className="w-3.5 h-3.5" /> : <div className="text-[10px] font-bold">ME</div>}
                       </div>
                       <div className="flex flex-col gap-1 max-w-[85%] mt-0.5">
                         <div className={`text-[14px] leading-relaxed ${msg.role === 'assistant' ? 'text-[#37352f]' : 'text-[#37352f]'}`}>
@@ -132,7 +132,7 @@ export function AiSidebar({ initialContext, onContextClear, onInsertBlocks }: Ai
                             className="w-fit flex items-center gap-2 bg-[#f1f1ef] text-[#37352f] hover:bg-[#efefed] rounded-[4px] h-7 text-xs shadow-none border-none mt-1"
                             onClick={() => parseAndInsert(msg.content)}
                           >
-                            <PlusCircle className="w-3.5 h-3.5" />
+                            <LuCirclePlus className="w-3.5 h-3.5" />
                             Insert into Page
                           </Button>
                         )}
@@ -147,7 +147,7 @@ export function AiSidebar({ initialContext, onContextClear, onInsertBlocks }: Ai
                 <div className="flex items-center justify-between p-2 bg-[#f1f1ef] rounded-[4px] border border-[#e1e1e1] text-[11px] text-[#37352f]/60">
                   <span className="truncate flex-1 font-medium">Context: Block data attached</span>
                   <Button variant="ghost" size="icon" className="h-4 w-4 hover:bg-[#e1e1e1]" onClick={onContextClear}>
-                    <X className="w-3 h-3" />
+                    <LuX className="w-3 h-3" />
                   </Button>
                 </div>
               )}
@@ -166,7 +166,7 @@ export function AiSidebar({ initialContext, onContextClear, onInsertBlocks }: Ai
                   className={`shrink-0 rounded-[3px] h-7 w-7 shadow-none transition-all ${input.trim() ? 'bg-[#2383e2] hover:bg-[#1a65b0] text-white scale-100 opacity-100' : 'bg-[#f1f1ef] text-[#37352f]/30 hover:bg-[#f1f1ef]'}`}
                   disabled={isGenerating || !input.trim()}
                 >
-                  <Send className="w-3.5 h-3.5" />
+                  <LuSend className="w-3.5 h-3.5" />
                 </Button>
               </div>
             </div>

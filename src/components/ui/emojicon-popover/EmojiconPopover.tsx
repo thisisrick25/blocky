@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useState, useRef, useEffect, useMemo } from "react";
-import { Clock, Smile, User, Leaf, Coffee, Activity, Plane, Lightbulb, Hash, Flag, LayoutGrid, Plus, SearchIcon, Shuffle } from "lucide-react";
 import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
 import * as LuIcons from "react-icons/lu";
 import * as PiIcons from "react-icons/pi";
 import * as RiIcons from "react-icons/ri";
+import { LuClock, LuSmile, LuUser, LuLeaf, LuCoffee, LuActivity, LuPlane, LuLightbulb, LuHash, LuFlag, LuLayoutGrid, LuPlus, LuSearch, LuShuffle } from "react-icons/lu";
 import emojiData from "emojibase-data/en/compact.json";
 import {
   EmojiPickerRow,
@@ -39,16 +39,16 @@ const ICON_LIBS = {
 type IconLibKey = keyof typeof ICON_LIBS;
 
 const EMOJI_CATEGORY_MAP = [
-  { label: "Recents", icon: Clock, groupId: -1 },
-  { label: "Smileys", icon: Smile, groupId: 0 },
-  { label: "People", icon: User, groupId: 1 },
-  { label: "Nature", icon: Leaf, groupId: 3 },
-  { label: "Food & Drink", icon: Coffee, groupId: 4 },
-  { label: "Activity", icon: Activity, groupId: 6 },
-  { label: "Travel & Places", icon: Plane, groupId: 5 },
-  { label: "Objects", icon: Lightbulb, groupId: 7 },
-  { label: "Symbols", icon: Hash, groupId: 8 },
-  { label: "Flags", icon: Flag, groupId: 9 },
+  { label: "Recents", icon: LuClock, groupId: -1 },
+  { label: "Smileys", icon: LuSmile, groupId: 0 },
+  { label: "People", icon: LuUser, groupId: 1 },
+  { label: "Nature", icon: LuLeaf, groupId: 3 },
+  { label: "Food & Drink", icon: LuCoffee, groupId: 4 },
+  { label: "Activity", icon: LuActivity, groupId: 6 },
+  { label: "Travel & Places", icon: LuPlane, groupId: 5 },
+  { label: "Objects", icon: LuLightbulb, groupId: 7 },
+  { label: "Symbols", icon: LuHash, groupId: 8 },
+  { label: "Flags", icon: LuFlag, groupId: 9 },
 ];
 
 interface EmojiconPopoverProps {
@@ -241,10 +241,10 @@ export function EmojiconPopover({
   }, [virtualizedIcons]);
 
   const displayIconCategories = useMemo(() => {
-    const cats = recentIcons.length > 0 && iconSearch === "" ? [{ label: "Recents", icon: Clock }] : [];
+    const cats = recentIcons.length > 0 && iconSearch === "" ? [{ label: "Recents", icon: LuClock }] : [];
     (Object.keys(ICON_LIBS) as IconLibKey[]).forEach(libKey => {
       if (filteredIconsByLib[libKey].length > 0) {
-        cats.push({ label: ICON_LIBS[libKey].label, icon: LayoutGrid });
+        cats.push({ label: ICON_LIBS[libKey].label, icon: LuLayoutGrid });
       }
     });
     return cats;
@@ -390,7 +390,7 @@ export function EmojiconPopover({
             <div className="w-full h-full flex flex-col bg-transparent">
               <div className="flex h-12 items-center gap-2 px-3 pt-2 pb-2">
                 <div className="relative flex-1 flex items-center">
-                  <SearchIcon className="absolute left-2.5 size-4 opacity-50 text-muted-foreground" />
+                  <LuSearch className="absolute left-2.5 size-4 opacity-50 text-muted-foreground" />
                   <input
                     type="text"
                     value={emojiSearch}
@@ -407,7 +407,7 @@ export function EmojiconPopover({
                     className="flex items-center justify-center size-8 hover:bg-accent rounded-md text-muted-foreground hover:text-foreground transition-colors shrink-0 border border-border"
                     title="Random Emoji"
                   >
-                    <Shuffle className="w-4 h-4" />
+                    <LuShuffle className="w-4 h-4" />
                   </button>
                   <EmojiPickerSkinTonePopup currentTone={currentTone} onToneSelect={handleToneSelect} />
                 </div>
@@ -482,7 +482,7 @@ export function EmojiconPopover({
                       </button>
                     );
                   })}
-                  <button className="p-[5px] hover:bg-black/10 bg-black/5 text-muted-foreground rounded-full transition-colors ml-1 shrink-0"><Plus className="w-[18px] h-[18px]" /></button>
+                  <button className="p-[5px] hover:bg-black/10 bg-black/5 text-muted-foreground rounded-full transition-colors ml-1 shrink-0"><LuPlus className="w-[18px] h-[18px]" /></button>
                 </div>
               </div>
             </div>
@@ -492,7 +492,7 @@ export function EmojiconPopover({
             <div className="w-full h-full flex flex-col bg-transparent">
               <div className="flex h-12 items-center gap-2 px-3 pt-2 pb-2">
                 <div className="relative flex-1 flex items-center">
-                  <SearchIcon className="absolute left-2.5 size-4 opacity-50 text-muted-foreground" />
+                  <LuSearch className="absolute left-2.5 size-4 opacity-50 text-muted-foreground" />
                   <input
                     type="text"
                     value={iconSearch}
@@ -509,7 +509,7 @@ export function EmojiconPopover({
                     className="flex items-center justify-center size-8 hover:bg-accent rounded-md text-muted-foreground hover:text-foreground transition-colors shrink-0 border border-border"
                     title="Random Icon"
                   >
-                    <Shuffle className="w-4 h-4" />
+                    <LuShuffle className="w-4 h-4" />
                   </button>
 
                   <IconColorPickerPopup
@@ -605,7 +605,7 @@ export function EmojiconPopover({
                       </button>
                     );
                   })}
-                  <button className="p-[5px] hover:bg-black/10 bg-black/5 text-muted-foreground rounded-full transition-colors ml-1 shrink-0"><Plus className="w-[18px] h-[18px]" /></button>
+                  <button className="p-[5px] hover:bg-black/10 bg-black/5 text-muted-foreground rounded-full transition-colors ml-1 shrink-0"><LuPlus className="w-[18px] h-[18px]" /></button>
                 </div>
               </div>
             </div>
