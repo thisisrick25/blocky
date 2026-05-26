@@ -10,15 +10,15 @@ export function DocNavbar({ docTitle, emojicon }: DocNavbarProps) {
   return (
     <div className="flex h-11 items-center justify-between bg-white px-4 sticky top-0 z-10 w-full">
       {/* Left Corner Container */}
-      <div className="flex items-center gap-2">
-        <h2 className="flex items-center gap-2 text-sm font-medium text-[#37352f]/50 hover:text-[#37352f] transition-colors cursor-pointer w-fit">
+      <div className="flex items-center">
+        <div className="flex items-center gap-2 text-sm font-medium text-[#37352f]/50 hover:text-[#37352f] transition-colors cursor-pointer w-fit leading-none select-none">
           {emojicon && (
-            <div className="w-4 h-4 flex items-center justify-center">
+            <div className="w-4 h-4 flex items-center justify-center shrink-0">
               <DocEmojicon emojicon={emojicon} className="w-full h-full" />
             </div>
           )}
-          <span>{docTitle || "Untitled"}</span>
-        </h2>
+          <span className="flex items-center leading-none">{docTitle || "Untitled"}</span>
+        </div>
       </div>
 
       {/* Right Corner Container */}
