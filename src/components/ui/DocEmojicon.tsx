@@ -8,7 +8,6 @@ const ICON_LIBRARIES: Record<string, any> = {
   lu: LuIcons,
   pi: PiIcons,
   ri: RiIcons,
-  lucide: LuIcons,
 };
 
 interface DocEmojiconProps {
@@ -24,27 +23,21 @@ export function DocEmojicon({ emojicon, className }: DocEmojiconProps) {
     const prefix = parts[0];
     const iconName = parts[1];
     const color = parts[2]; // May be undefined
-    
+
     const library = ICON_LIBRARIES[prefix];
     if (library) {
       const IconComponent = library[iconName];
       if (IconComponent) {
         return (
-          <IconComponent 
-            className={cn("w-full h-full transition-colors duration-300", className)} 
+          <IconComponent
+            className={cn("w-full h-full transition-colors duration-300", className)}
             style={color ? { color } : undefined}
           />
         );
       }
     }
-    
-    // Fallback for old format or missing icon
-    if (prefix === "lucide") {
-       // We already mapped lucide to LuIcons, so if it's not found there, it might be a naming issue
-       // but react-icons/lu uses same names as lucide-react mostly.
-    }
 
-    return <span className={className}>📄</span>;
+    return <LuIcons.LuFileText className={cn("w-full h-full", className)} />;
   }
 
   // Treat as emoji

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import dynamic from "next/dynamic";
 import React, { useState, useRef } from "react";
@@ -33,10 +33,10 @@ export default function Home() {
 
   return (
     <>
-      <AppSidebar emojicon={emojicon || "📄"} docTitle={docTitle} />
+      <AppSidebar emojicon={emojicon || "lu:LuFileText"} docTitle={docTitle} />
       <SidebarInset className="flex flex-col flex-1 overflow-hidden bg-white">
-        <DocNavbar docTitle={docTitle} />
-        <div className="flex-1 overflow-auto bg-white flex flex-col group/page">
+        <DocNavbar docTitle={docTitle} emojicon={emojicon || "lu:LuFileText"} />
+        <div className="flex-1 overflow-auto bg-white flex flex-col">
           <DocHeader
             docTitle={docTitle}
             setDocTitle={setDocTitle}
