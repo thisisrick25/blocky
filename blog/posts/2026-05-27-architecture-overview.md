@@ -6,29 +6,21 @@ tags: ["engineering", "architecture", "crdt", "ai"]
 status: "draft"
 ---
 
-# Introduction
+Blocky Editor needed to do three things at once: feel fast, sync peer-to-peer, and save everything locally. Oh, and I wanted AI built into the editing experience from the start, not bolted on later.
 
-I wanted Blocky Editor to feel fast while supporting real-time collaboration and local persistence. I also wanted to integrate AI directly into the editing experience.
+# Five agents, one app
 
-# Context
+I split the system into five agents because trying to jam all of this into a single module was going to be a mess. Each agent owns its domain.
 
-I needed an editor that works fast and feels snappy, but that could still sync peer-to-peer and save files locally.
+The Editor Agent is the surface layer. It runs on `@blocknote/react` and `@blocknote/mantine`, which gave me a block-based editing interface out of the box. From there I built the custom AI sidebar and the Explorer shell around it.
 
-# The Solution / Decisions Made
+State management lives in the CRDT Agent, powered by `yjs`. There's no central server in the picture. Local changes persist through `y-indexeddb`, and syncing between peers happens over `y-webrtc`.
 
-I split the system into five separate agents, each handling a specific piece of the app.
+For actually writing files to disk, the Persistence Agent handles that through Tauri. It uses `tauri-plugin-fs` and `tauri-plugin-sql` to save binary Yjs updates and Markdown snapshots straight to AppData. No cloud middleman.
 
-The Editor Agent uses `@blocknote/react` and `@blocknote/mantine` to provide the core block-based editing interface. This setup let me build a custom AI sidebar and an Explorer shell around it.
+Version control is the Git Sync Agent, written in Rust with `git2-rs`. Users can commit and push from inside the app. The Rust side keeps it fast and keeps the JS bundle clean.
 
-The CRDT Agent uses `yjs` to manage state without relying on a central server. Local changes are saved with `y-indexeddb`, and peer-to-peer syncing happens over `y-webrtc`.
-
-The Persistence Agent runs on Tauri, using `tauri-plugin-fs` and `tauri-plugin-sql` to save binary Yjs updates and Markdown snapshots directly to the local AppData folder.
-
-The Git Sync Agent is written in Rust with `git2-rs`. It handles version control, allowing users to commit and push changes right from the application.
-
-The AI Orchestrator integrates a Gemini provider. Instead of pulling in a heavy SDK, I wrote a native `fetch` implementation to keep the app bundle small.
-
-# Code / Examples
+Then there's the AI Orchestrator, which talks to a Gemini provider. I wrote the HTTP client with native `fetch` instead of pulling in a heavy SDK. The bundle size thanked me for that one.
 
 ```typescript
 // Example of how I initialize the Editor with Yjs
@@ -43,10 +35,10 @@ const indexeddbProvider = new IndexeddbPersistence("blocky-room", doc);
 const webrtcProvider = new WebrtcProvider("blocky-room", doc);
 ```
 
-# Lessons Learned
+# Where things get tricky
 
-Mixing local-first storage with real-time peer-to-peer sync means you have to be really careful about how state initializes, otherwise you end up with race conditions.
+Mixing local-first storage with real-time P2P sync means state initialization is a minefield. If the IndexedDB provider and the WebRTC provider race each other on startup, you get duplicate blocks or lost changes. Getting the initialization order right took more debugging than I'd like to admit.
 
-# Next Steps
+# What's next
 
-I'm currently working on polishing the AI sidebar interactions and making sure the Git Sync agent can handle merge conflicts without bothering the user.
+Right now I'm fixing the AI sidebar's context passing so it actually sends the right block content to the model, and I'm making the Git Sync agent surface merge conflicts in a way that doesn't dump raw conflict markers into the document.

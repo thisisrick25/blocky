@@ -1,30 +1,22 @@
 ---
-title: "Elegantly Serializing Icons for CRDTs"
+title: "Serializing icons for CRDTs without the headache"
 date: "2026-05-27"
 author: "Me"
 tags: ["engineering", "architecture", "crdt"]
 status: "draft"
 ---
 
-# Introduction
+I wanted users to be able to pick their own document icons in Blocky Editor. It sounds simple enough until you realize people want both standard emojis like "📘" and vector icons from libraries like React Icons. I needed a way to store and sync that data that wouldn't break the collaborative state.
 
-I wanted users to be able to customize their document icons in Blocky Editor using either standard plain text emojis (like "📘") or vector icons from libraries like React Icons. This meant I had to figure out how to store and sync that data effectively.
+Blocky uses `yjs` for everything. When I was looking at how to represent an icon in the state, I had a choice. I could use a nested object to store the library prefix, the icon name, and a hex color, or I could find something flatter.
 
-# Context
-
-Blocky Editor uses `yjs` for collaborative state and local storage. When deciding how to represent an icon in the state schema, I had to choose a format that could handle both a simple unicode character and a vector icon that needs a library prefix, an icon name, and a hex color.
-
-# The Solution / Decisions Made
-
-Instead of a nested object like `{ type: "lucide", name: "LuFileText", color: "#ff0000" }`, I went with a delimited string format: `"prefix:IconName:color"`.
+I ended up skipping the nested object approach. Instead of something like `{ type: "lucide", name: "LuFileText", color: "#ff0000" }`, I went with a delimited string: `"prefix:IconName:color"`.
 
 For example: `"lu:LuFileText:#ff0000"`
 
-This approach solves a few problems. First, standard unicode emojis and vector icons can share the exact same `icon` state key. Second, `yjs` handles flat string replacements easily. If a user updates an icon's color, the system doesn't have to parse and patch a nested map. This keeps the CRDT operations simple and cuts down on merge conflicts. Finally, parsing the icon is just a matter of calling `.split(":")`. If there isn't a colon, the system treats it as a standard unicode emoji.
+This works well because standard emojis and vector icons can live in the same `icon` state key. Since `yjs` handles flat string replacements without any drama, updating an icon color doesn't require parsing or patching a nested map. It keeps the CRDT operations straightforward and helps avoid merge conflicts. Parsing is just a `.split(":")` call. If there isn't a colon, I just treat it as a normal emoji.
 
-# Code / Examples
-
-This is the parsing logic in my `DocEmojicon` component:
+This is how the parsing looks in my `DocEmojicon` component:
 
 ```tsx
 export function DocEmojicon({
@@ -55,10 +47,6 @@ export function DocEmojicon({
 }
 ```
 
-# Lessons Learned
+I've learned that keeping the state schema flat is the only way to stay sane with CRDTs. Nested objects are usually where the messiest merge states happen. Using a simple string for metadata like this is a solid way to keep things moving.
 
-Keeping the state schema as flat as possible is critical when working with CRDTs. Nested objects often create messy merge states. Using a simple string serialization for metadata like icons turned out to be a reliable hack for avoiding those issues.
-
-# Next Steps
-
-I plan to add more vector libraries to the icon picker so users have more options, without complicating the sync engine.
+I'm going to add more vector libraries to the picker soon. The sync engine is already handled, so adding more options won't change how the data actually moves.
